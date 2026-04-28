@@ -1,3 +1,19 @@
 spring:
   application:
     name: api-test-app-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hospital_test_2
+    username: postgres
+    password: 123456789
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
