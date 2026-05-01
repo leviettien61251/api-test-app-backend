@@ -61,17 +61,6 @@ public class SignupNotYetLoginService {
     public SignUpResponse signUp(SignUpRequest request) {
         SignupNotYetLogin savedS;
         try {
-
-            if (signupNotYetLoginRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-
-                return SignUpResponse.builder()
-                        .signupStatus("fail")
-                        .signupTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.USER_EXISTS.getCode())
-                        .message(ResponseCode.USER_EXISTS.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
             if (request.getPhoneNumber().isBlank()) {
                 return SignUpResponse.builder()
                         .signupStatus("fail")
@@ -81,17 +70,6 @@ public class SignupNotYetLoginService {
                         .usedInTest(false)
                         .build();
             }
-
-            if (!isPhoneNumberValid(request.getPhoneNumber())) {
-                return SignUpResponse.builder()
-                        .signupStatus("fail")
-                        .signupTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message("Số điện thoại không hợp lệ")
-                        .usedInTest(false)
-                        .build();
-            }
-
             if (request.getPassword().isBlank()) {
                 return SignUpResponse.builder()
                         .signupStatus("fail")
@@ -101,13 +79,31 @@ public class SignupNotYetLoginService {
                         .usedInTest(false)
                         .build();
             }
-
+            if (!isPhoneNumberValid(request.getPhoneNumber())) {
+                return SignUpResponse.builder()
+                        .signupStatus("fail")
+                        .signupTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message("Số điện thoại không hợp lệ")
+                        .usedInTest(false)
+                        .build();
+            }
             if (!isPasswordValid(request.getPassword())) {
                 return SignUpResponse.builder()
                         .signupStatus("fail")
                         .signupTimestamp(new Timestamp(System.currentTimeMillis()))
                         .code(ResponseCode.INVALID_VALUE.getCode())
                         .message("Password không hợp lệ")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (signupNotYetLoginRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+
+                return SignUpResponse.builder()
+                        .signupStatus("fail")
+                        .signupTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.USER_EXISTS.getCode())
+                        .message(ResponseCode.USER_EXISTS.getMessage())
                         .usedInTest(false)
                         .build();
             }
