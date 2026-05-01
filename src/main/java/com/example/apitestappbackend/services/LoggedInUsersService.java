@@ -76,6 +76,40 @@ public class LoggedInUsersService {
     public LoginResponse login(LoginRequest request) {
         LoggedInUsers savedL;
         try {
+
+            if (request.getPhoneNumber().isBlank()) {
+                return LoginResponse.builder()
+                        .loginStatus("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu trường phone_number")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (request.getPassword().isBlank()) {
+                return LoginResponse.builder()
+                        .loginStatus("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu trường password")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (!isPhoneNumberValid(request.getPhoneNumber())) {
+                return LoginResponse.builder()
+                        .loginStatus("fail")
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message("Số điện thoại không hợp lệ")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            if (!isPasswordValid(request.getPassword())) {
+                return LoginResponse.builder()
+                        .loginStatus("fail")
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message("Password không hợp lệ")
+                        .usedInTest(false)
+                        .build();
+            }
             if (isPhoneNumberExists(request.getPhoneNumber())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
@@ -94,6 +128,10 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
+
+
+
+
             if (!isPasswordCorrect(request.getPassword())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
@@ -103,38 +141,8 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
-            if (request.getPhoneNumber().isBlank()) {
-                return LoginResponse.builder()
-                        .loginStatus("fail")
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message("Thiếu trường phone_number")
-                        .usedInTest(false)
-                        .build();
-            }
-            if (!isPhoneNumberValid(request.getPhoneNumber())) {
-                return LoginResponse.builder()
-                        .loginStatus("fail")
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message("Số điện thoại không hợp lệ")
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getPassword().isBlank()) {
-                return LoginResponse.builder()
-                        .loginStatus("fail")
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message("Thiếu trường password")
-                        .usedInTest(false)
-                        .build();
-            }
-            if (!isPasswordValid(request.getPassword())) {
-                return LoginResponse.builder()
-                        .loginStatus("fail")
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message("Password không hợp lệ")
-                        .usedInTest(false)
-                        .build();
-            }
+
+
 
             LoggedInUsers l = new LoggedInUsers();
             l.setPhoneNumber(request.getPhoneNumber());
