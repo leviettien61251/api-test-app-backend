@@ -56,7 +56,7 @@ public class PasswordChangedService {
 
         try {
             //nếu phoneNumber này chưa login => return user not logged in
-            if (!isPhoneNumberLoggedIn(request.getPhoneNumber())) {
+            if (!isPhoneNumberLoggedIn(request.getPhoneNumber().trim())) {
                 return PasswordChangedResponse.builder()
                         .status("fail")
                         .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
@@ -65,7 +65,7 @@ public class PasswordChangedService {
                         .usedInTest(false)
                         .build();
             }
-            if(!isOldPasswordCorrect(request.getPhoneNumber(), request.getOldPassword())){
+            if(!isOldPasswordCorrect(request.getPhoneNumber().trim(), request.getOldPassword().trim())){
                 return PasswordChangedResponse.builder()
                         .status("fail")
                         .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
@@ -95,9 +95,9 @@ public class PasswordChangedService {
 
 
             PasswordChanged p = new PasswordChanged();
-            p.setPhoneNumber(request.getPhoneNumber());
-            p.setOldPassword(request.getOldPassword());
-            p.setNewPassword(request.getNewPassword());
+            p.setPhoneNumber(request.getPhoneNumber().trim());
+            p.setOldPassword(request.getOldPassword().trim());
+            p.setNewPassword(request.getNewPassword().trim());
             p.setStatus("success");
             p.setOldPasswordStatus(PasswordStatus.PROVIDED.getStatus());
             p.setNewPasswordStatus(PasswordStatus.PROVIDED.getStatus());
@@ -108,7 +108,7 @@ public class PasswordChangedService {
 
             try{
                 //update new password vào loggedInUser
-                LoggedInUsers l = loggedInUsersService.findUserByPhoneNumber(request.getPhoneNumber());
+                LoggedInUsers l = loggedInUsersService.findUserByPhoneNumber(request.getPhoneNumber().trim());
                 l.setPassword(p.getNewPassword());
 
                 needChangeP = loggedInUsersRepository.save(l);

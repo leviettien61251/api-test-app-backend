@@ -76,6 +76,22 @@ public class LoggedInUsersService {
     public LoginResponse login(LoginRequest request) {
         LoggedInUsers savedL;
         try {
+            if (request.getPhoneNumber() == null) {
+                return LoginResponse.builder()
+                        .loginStatus("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu trường phone_number")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (request.getPassword() == null) {
+                return LoginResponse.builder()
+                        .loginStatus("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu trường password")
+                        .usedInTest(false)
+                        .build();
+            }
 
             if (request.getPhoneNumber().isBlank()) {
                 return LoginResponse.builder()
@@ -93,7 +109,7 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
-            if (!isPhoneNumberValid(request.getPhoneNumber())) {
+            if (!isPhoneNumberValid(request.getPhoneNumber().trim())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
                         .code(ResponseCode.INVALID_VALUE.getCode())
@@ -102,7 +118,7 @@ public class LoggedInUsersService {
                         .build();
             }
 
-            if (!isPasswordValid(request.getPassword())) {
+            if (!isPasswordValid(request.getPassword().trim())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
                         .code(ResponseCode.INVALID_VALUE.getCode())
@@ -110,7 +126,7 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
-            if (isPhoneNumberExists(request.getPhoneNumber())) {
+            if (isPhoneNumberExists(request.getPhoneNumber().trim())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
                         .loginTimestamp(new Timestamp(System.currentTimeMillis()))
@@ -119,7 +135,7 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
-            if (!isUserSignUp(request.getPhoneNumber())) {
+            if (!isUserSignUp(request.getPhoneNumber().trim())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
                         .loginTimestamp(new Timestamp(System.currentTimeMillis()))
@@ -130,9 +146,7 @@ public class LoggedInUsersService {
             }
 
 
-
-
-            if (!isPasswordCorrect(request.getPassword())) {
+            if (!isPasswordCorrect(request.getPassword().trim())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
                         .loginTimestamp(new Timestamp(System.currentTimeMillis()))
@@ -143,10 +157,9 @@ public class LoggedInUsersService {
             }
 
 
-
             LoggedInUsers l = new LoggedInUsers();
-            l.setPhoneNumber(request.getPhoneNumber());
-            l.setPassword(request.getPassword());
+            l.setPhoneNumber(request.getPhoneNumber().trim());
+            l.setPassword(request.getPassword().trim());
             l.setLoginStatus("success");
             l.setToken("token was set");
             l.setRefreshToken("refresh token");

@@ -238,7 +238,7 @@ public class LoginScenariaDbTest {
     }
 
     @Test
-    @DisplayName("Testcase 5b: Empty phone, valid password - Should PASS (Login fails)")
+    @DisplayName("Testcase 6: Empty phone, valid password - Should PASS (Login fails)")
     void testLoginWithEmptyPhoneButValidPassword() {
         // Arrange
         LoginRequest request = new LoginRequest("", VALID_PASSWORD);
@@ -270,7 +270,7 @@ public class LoginScenariaDbTest {
 //    }
 
     @Test
-    @DisplayName("Testcase 6a: Empty phone and empty password - Should PASS (Login fails)")
+    @DisplayName("Testcase 7: Empty phone and empty password - Should PASS (Login fails)")
     void testLoginWithEmptyPhoneAndEmptyPassword() {
         // Arrange
         LoginRequest request = new LoginRequest("", "");
@@ -290,7 +290,27 @@ public class LoginScenariaDbTest {
     }
 
     @Test
-    @DisplayName("Testcase 6b: Invalid phone and invalid password - Should PASS (Login fails)")
+    @DisplayName("Testcase 8: Null phone and null password - Should PASS (Logic fails)")
+    void testLoginWithNullPhoneAndNullEmptyPassword() {
+        // Arrange
+        LoginRequest request = new LoginRequest(null, null);
+
+        // Act - Call login service
+        LoginResponse response = loggedInUsersService.login(request);
+
+        // Assert - Login should fail
+        assertNotNull(response, "Response should not be null");
+        assertEquals("fail", response.getLoginStatus(), "Login status should be fail");
+        assertEquals(ResponseCode.MISSING_PARAM.getCode(), response.getCode(),
+                "Response code should be 2001 (MISSING_PARAM)");
+
+        // Verify record is NOT saved
+        assertFalse(loggedInUsersRepository.existsByPhoneNumber(""),
+                "User should NOT be saved in logged_in_users table");
+    }
+
+    @Test
+    @DisplayName("Testcase 9: Invalid phone and invalid password - Should PASS (Login fails)")
     void testLoginWithInvalidPhoneAndInvalidPassword() {
         // Arrange
         LoginRequest request = new LoginRequest("123", "12345");
@@ -305,6 +325,44 @@ public class LoginScenariaDbTest {
         // Verify record is NOT saved
         assertFalse(loggedInUsersRepository.existsByPhoneNumber("123"),
                 "User should NOT be saved in logged_in_users table");
+    }
+
+    @Test
+    @DisplayName("Testcase 10: Phone with whitespace and valid password - Should PASS (Login success)")
+    void testLoginPhoneWithWhitespaceAndValidPassword() {
+        // Arrange - Create a registered user in signup_not_yet_login table
+        createAndSaveSignupUser(VALID_PHONE, VALID_PASSWORD);
+
+        // Verify user is in signup table
+        assertTrue(signupNotYetLoginRepository.existsByPhoneNumber(VALID_PHONE),
+                "User should exist in signup_not_yet_login table");
+
+        //Arrange
+        LoginRequest request = new LoginRequest(" " + VALID_PHONE + " ", VALID_PASSWORD);
+
+        //Act - Call login service
+        LoginResponse response = loggedInUsersService.login(request);
+
+        // Assert - Login should succeed
+        assertNotNull(response, "Response should not be null");
+        assertEquals("success", response.getLoginStatus(), "Login status should be success");
+        assertEquals(ResponseCode.SUCCESS.getCode(), response.getCode(), "Response code should be 1000");
+        assertEquals(ResponseCode.SUCCESS.getMessage(), response.getMessage());
+        assertFalse(response.getUsedInTest());
+        assertNotNull(response.getToken(), "Token should be generated");
+        assertNotNull(response.getRefreshToken(), "RefreshToken should be generated");
+        assertNotNull(response.getTokenExpiresAt(), "TokenExpiresAt should be set");
+        assertNotNull(response.getData(), "Data should not be null");
+        assertNotNull(response.getData().getId(), "User ID should be set");
+        assertEquals(VALID_PHONE, response.getData().getPhoneNumber(), "Phone number should match");
+
+        // Verify record is saved in logged_in_users table
+        assertTrue(loggedInUsersRepository.existsByPhoneNumber(VALID_PHONE),
+                "User should be saved in logged_in_users table");
+        LoggedInUsers savedUser = loggedInUsersRepository.findLoggedInUsersByPhoneNumber(VALID_PHONE);
+        assertNotNull(savedUser, "Saved user should not be null");
+        assertEquals(VALID_PHONE, savedUser.getPhoneNumber());
+
     }
 
     @Test
