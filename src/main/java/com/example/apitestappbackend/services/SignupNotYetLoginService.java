@@ -79,7 +79,7 @@ public class SignupNotYetLoginService {
                         .usedInTest(false)
                         .build();
             }
-            if (!isPhoneNumberValid(request.getPhoneNumber())) {
+            if (!isPhoneNumberValid(request.getPhoneNumber().trim())) {
                 return SignUpResponse.builder()
                         .signupStatus("fail")
                         .signupTimestamp(new Timestamp(System.currentTimeMillis()))
@@ -88,7 +88,7 @@ public class SignupNotYetLoginService {
                         .usedInTest(false)
                         .build();
             }
-            if (!isPasswordValid(request.getPassword())) {
+            if (!isPasswordValid(request.getPassword().trim())) {
                 return SignUpResponse.builder()
                         .signupStatus("fail")
                         .signupTimestamp(new Timestamp(System.currentTimeMillis()))
@@ -97,7 +97,7 @@ public class SignupNotYetLoginService {
                         .usedInTest(false)
                         .build();
             }
-            if (signupNotYetLoginRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            if (signupNotYetLoginRepository.existsByPhoneNumber(request.getPhoneNumber().trim())) {
 
                 return SignUpResponse.builder()
                         .signupStatus("fail")
@@ -108,8 +108,8 @@ public class SignupNotYetLoginService {
                         .build();
             }
             SignupNotYetLogin s = new SignupNotYetLogin();
-            s.setPhoneNumber(request.getPhoneNumber());
-            s.setPassword(request.getPassword());
+            s.setPhoneNumber(request.getPhoneNumber().trim());
+            s.setPassword(request.getPassword().trim());
             s.setSignupStatus("success");
             s.setUsedInTest(false);
             s.setCode(ResponseCode.SUCCESS.getCode());
