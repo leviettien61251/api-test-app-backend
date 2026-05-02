@@ -50,11 +50,70 @@ public class PasswordChangedService {
         return password != null && password.matches(regexPassword);
     }
 
+    private boolean isTheSamePassword(String oldPassword, String newPassword) {
+        return newPassword.matches(oldPassword);
+    }
+
     public PasswordChangedResponse changePassword(PasswordChangedRequest request) {
         PasswordChanged savedP;
         LoggedInUsers needChangeP;
 
         try {
+            if (request.getOldPassword() == null) {
+                return PasswordChangedResponse.builder()
+                        .status("fail")
+                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Old password bị để trống")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (request.getNewPassword() == null) {
+                return PasswordChangedResponse.builder()
+                        .status("fail")
+                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("New password bị để trống")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (request.getOldPassword().isBlank()) {
+                return PasswordChangedResponse.builder()
+                        .status("fail")
+                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Old password bị để trống")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (request.getNewPassword().isBlank()) {
+                return PasswordChangedResponse.builder()
+                        .status("fail")
+                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("New password bị để trống")
+                        .usedInTest(false)
+                        .build();
+            }
+            if (!isPasswordValid(request.getNewPassword().trim())) {
+                return PasswordChangedResponse.builder()
+                        .status("fail")
+                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.PASSWORD_INCORRECT.getCode())
+                        .message("Password quá ngắn")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            if (isTheSamePassword(request.getOldPassword().trim(), request.getNewPassword().trim())) {
+                return PasswordChangedResponse.builder()
+                        .status("fail")
+                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.PASSWORD_INCORRECT.getCode())
+                        .message("Hãy đổi password mới")
+                        .usedInTest(false)
+                        .build();
+            }
             //nếu phoneNumber này chưa login => return user not logged in
             if (!isPhoneNumberLoggedIn(request.getPhoneNumber().trim())) {
                 return PasswordChangedResponse.builder()
@@ -65,30 +124,12 @@ public class PasswordChangedService {
                         .usedInTest(false)
                         .build();
             }
-            if(!isOldPasswordCorrect(request.getPhoneNumber().trim(), request.getOldPassword().trim())){
+            if (!isOldPasswordCorrect(request.getPhoneNumber().trim(), request.getOldPassword().trim())) {
                 return PasswordChangedResponse.builder()
                         .status("fail")
                         .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
                         .code(ResponseCode.PASSWORD_INCORRECT.getCode())
                         .message(ResponseCode.PASSWORD_INCORRECT.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
-            if(request.getOldPassword().isBlank()){
-                return PasswordChangedResponse.builder()
-                        .status("fail")
-                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message("Old password bị để trống")
-                        .usedInTest(false)
-                        .build();
-            }
-            if(request.getNewPassword().isBlank()){
-                return PasswordChangedResponse.builder()
-                        .status("fail")
-                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message("New password bị để trống")
                         .usedInTest(false)
                         .build();
             }
@@ -106,7 +147,7 @@ public class PasswordChangedService {
             p.setMessage(ResponseCode.SUCCESS.getMessage());
 
 
-            try{
+            try {
                 //update new password vào loggedInUser
                 LoggedInUsers l = loggedInUsersService.findUserByPhoneNumber(request.getPhoneNumber().trim());
                 l.setPassword(p.getNewPassword());
