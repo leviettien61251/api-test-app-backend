@@ -1,42 +1,31 @@
 package com.example.apitestappbackend.models;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
+import jakarta.persistence.Table;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
 
-@Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class GetUserInfo {
+@Entity
+@Table(name = "logout")
+public class Logout {
+
     @Id
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "retrieved_full_name", length = 255)
-    private String retrievedFullName;
-
-    @Column(name = "retrieved_phone", length = 20)
-    private String retrievedPhone;
-
-    @Column(name = "retrieved_avatar", columnDefinition = "TEXT")
-    private String retrievedAvatar;
-
-    @Column(name = "retrieved_address", columnDefinition = "TEXT")
-    private String retrievedAddress;
+    @Column(name = "invalidated_token", columnDefinition = "TEXT")
+    private String invalidatedToken;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
 
-    @Column(name = "code",  columnDefinition = "TEXT")
+    @Column(name = "code", columnDefinition = "TEXT")
     private String code;
 
     @Column(name = "message", columnDefinition = "TEXT")
@@ -51,3 +40,4 @@ public class GetUserInfo {
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 }
+
