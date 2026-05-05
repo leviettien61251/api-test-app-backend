@@ -367,6 +367,7 @@ public class LoginScenariaDbTest {
 
     @Test
     @DisplayName("Edge case: User already logged in (phone exists in logged_in_users) - Should PASS (Login fails)")
+    //
     void testLoginWithAlreadyLoggedInUser() {
         // Arrange - Create user in logged_in_users table (simulate already logged in)
         createAndSaveLoggedInUser(VALID_PHONE, VALID_PASSWORD);

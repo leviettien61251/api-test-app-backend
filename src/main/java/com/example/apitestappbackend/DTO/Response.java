@@ -1,0 +1,24 @@
+package com.example.apitestappbackend.DTO;
+
+import lombok.*;
+
+import java.sql.Timestamp;
+
+@Getter
+@Setter
+public class Response {
+    private String status;
+    private String code;
+    private String message;
+    private Timestamp createdAt;
+
+    public Response() {
+    }
+
+    public Response(String status, String code, String message, Timestamp createdAt) {
+        this.status = status;
+        this.code = code;
+        this.message = message;
+        this.createdAt = createdAt;
+    }
+}

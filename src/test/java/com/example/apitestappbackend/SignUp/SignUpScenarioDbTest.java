@@ -159,6 +159,7 @@ public class SignUpScenarioDbTest {
 
     @Test
     @DisplayName("Scenario 5: Invalid phone, has password, already registered → FAILURE")
+    //doi lai invalid phone
     void testScenario5_InvalidPhoneAlreadyRegistered() throws Exception {
         // Pre-register with invalid phone (manually insert for this scenario)
         SignupNotYetLogin preregistered = new SignupNotYetLogin();
