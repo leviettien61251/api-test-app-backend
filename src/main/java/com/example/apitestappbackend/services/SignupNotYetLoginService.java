@@ -59,25 +59,32 @@ public class SignupNotYetLoginService {
         return password != null && password.matches(regexPassword);
     }
 
-    private void generateSignUpData() {
-        int successCount = 0;
+    private List<String> generateSignUpData() {
         int baseNumber = 1;
-        String password = "111111";
+
         int totalBulkTests = 10000;
-        ArrayList<String> phones = new ArrayList<>();
+        List<String> phones = new ArrayList<>();
+        List<SignUpRequest> requests = new ArrayList<>();
 
         for (int i = 0; i < totalBulkTests; i++) {
             // Generate odd numbers: 1111111, 1111113, 1111115, ..., 1111309
             // (increment by 2 to ensure all digits are odd)
-            int phoneNumber = baseNumber + (i * 2);
+            //int phoneNumber = baseNumber + (i * 2);
+            int phoneNumber = baseNumber + i;
             String viettelPhone = "098" + String.format("%06d", phoneNumber);
             phones.add(viettelPhone);
-
             System.out.println(viettelPhone);
-
-
         }
 
+        return phones;
+
+    }
+
+    public void save10000() {
+        String password = "111111";
+        List<String> phones = generateSignUpData();
+        List<SignupNotYetLogin> list = new ArrayList<>();
+        
         for (String p : phones) {
             SignupNotYetLogin s = new SignupNotYetLogin();
             s.setPhoneNumber(p);
@@ -86,14 +93,30 @@ public class SignupNotYetLoginService {
             s.setUsedInTest(false);
             s.setCode(ResponseCode.SUCCESS.getCode());
             s.setMessage(ResponseCode.SUCCESS.getMessage());
-
-            signupNotYetLoginRepository.save(s);
+            list.add(s);
+            
+            // Save in batches of 1000 to avoid memory issues
+            if (list.size() == 1000) {
+                signupNotYetLoginRepository.saveAll(list);
+                log.info("Saved {} records", list.size());
+                list.clear();
+            }
         }
+        
+        // Save remaining records
+        if (!list.isEmpty()) {
+            signupNotYetLoginRepository.saveAll(list);
+            log.info("Saved final {} records", list.size());
+        }
+        log.info("Completed saving 10000 records");
+    }
+
+    public void generate10000SignUpData() {
+        save10000();
     }
 
     public SignUpResponse signUp(SignUpRequest request) {
         SignupNotYetLogin savedS;
-        generateSignUpData();
         try {
             if (request.getPhoneNumber().isBlank()) {
                 return SignUpResponse.builder()
