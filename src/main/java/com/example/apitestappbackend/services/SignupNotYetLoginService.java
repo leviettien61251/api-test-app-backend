@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -58,8 +59,41 @@ public class SignupNotYetLoginService {
         return password != null && password.matches(regexPassword);
     }
 
+    private void generateSignUpData() {
+        int successCount = 0;
+        int baseNumber = 1;
+        String password = "111111";
+        int totalBulkTests = 10000;
+        ArrayList<String> phones = new ArrayList<>();
+
+        for (int i = 0; i < totalBulkTests; i++) {
+            // Generate odd numbers: 1111111, 1111113, 1111115, ..., 1111309
+            // (increment by 2 to ensure all digits are odd)
+            int phoneNumber = baseNumber + (i * 2);
+            String viettelPhone = "098" + String.format("%06d", phoneNumber);
+            phones.add(viettelPhone);
+
+            System.out.println(viettelPhone);
+
+
+        }
+
+        for (String p : phones) {
+            SignupNotYetLogin s = new SignupNotYetLogin();
+            s.setPhoneNumber(p);
+            s.setPassword(password);
+            s.setSignupStatus("success");
+            s.setUsedInTest(false);
+            s.setCode(ResponseCode.SUCCESS.getCode());
+            s.setMessage(ResponseCode.SUCCESS.getMessage());
+
+            signupNotYetLoginRepository.save(s);
+        }
+    }
+
     public SignUpResponse signUp(SignUpRequest request) {
         SignupNotYetLogin savedS;
+        generateSignUpData();
         try {
             if (request.getPhoneNumber().isBlank()) {
                 return SignUpResponse.builder()
