@@ -33,6 +33,18 @@ public class SignupNotYetLoginController {
         return ResponseEntity.ok(signupNotYetLoginService.findAll_());
     }
 
+    @PostMapping("/generate10000")
+    public ResponseEntity<String> generate10000SignUpData(){
+        try {
+            signupNotYetLoginService.generate10000SignUpData();
+            return ResponseEntity.ok("Successfully generated and saved 10000 signup records");
+        } catch (Exception e) {
+            log.error("Error generating 10000 records: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
+        }
+    }
+
     @PostMapping("/signup-not-yet-login")
     public void insert(@RequestBody SignupNotYetLogin s) {
         signupNotYetLoginService.insert(s);

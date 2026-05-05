@@ -23,7 +23,7 @@ public class GetUserInfo {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_AVATAR_USER_TEST"))
     private UserTest user_id;
 
-    @Column(name = "retrieved_full_name", length = 255)
+    @Column(name = "retrieved_full_name" )
     private String retrievedFullName;
 
     @Column(name = "retrieved_phone", length = 20)
