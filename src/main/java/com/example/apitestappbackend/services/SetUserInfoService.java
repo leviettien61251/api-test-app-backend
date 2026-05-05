@@ -17,4 +17,5 @@ public class SetUserInfoService {
     public List<SetUserInfo> findAll(){
         return setUserInfoRepository.findAll();
     }
+
 }

@@ -1,9 +1,7 @@
 package com.example.apitestappbackend.models;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +18,10 @@ public class GetUserInfo {
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_AVATAR_USER_TEST"))
+    private UserTest user_id;
 
     @Column(name = "retrieved_full_name", length = 255)
     private String retrievedFullName;
