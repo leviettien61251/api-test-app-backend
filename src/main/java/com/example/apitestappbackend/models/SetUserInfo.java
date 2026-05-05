@@ -33,8 +33,8 @@ public class SetUserInfo {
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
 
-    @Column(name = "code")
-    private Integer code;
+    @Column(name = "code", columnDefinition = "TEXT")
+    private String code;
 
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
