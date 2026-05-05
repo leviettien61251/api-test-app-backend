@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Data
 @Entity
 @Table(name = "logout")
-public class Logout {
+public class LoggedOutUser {
 
     @Id
     @UuidGenerator
