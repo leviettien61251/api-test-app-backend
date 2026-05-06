@@ -11,5 +11,6 @@ public class GetUserInfoData {
     private String id;
     private String fullName;
     private String phoneNumber;
+    private String avatar;
     private String address;
 }

@@ -1,7 +1,10 @@
 package com.example.apitestappbackend.models;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +13,7 @@ import org.hibernate.annotations.UuidGenerator;
 import java.sql.Timestamp;
 
 @Entity
+@Table(name = "get_user_info")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,6 +35,9 @@ public class GetUserInfo {
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
 
+    @Column(name = "time_stamp", length = 50)
+    private Timestamp timeStamp;
+
     @Column(name = "status", length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
 
@@ -39,9 +46,6 @@ public class GetUserInfo {
 
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
-
-    @Column(name = "time_stamp", length = 50)
-    private String timeStamp;
 
     @Column(name = "used_in_test")
     private Boolean usedInTest = false;
