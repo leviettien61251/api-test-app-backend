@@ -21,7 +21,7 @@ public class LoggedInUsers {
     @Id
     @UuidGenerator
     private String id;
-    @Column(nullable = false, length = 20, unique = true)
+    @Column(nullable = false, length = 20)
     private String phoneNumber;
     @Column(nullable = false, length = 100)
     private String password;

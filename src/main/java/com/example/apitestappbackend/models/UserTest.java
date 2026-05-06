@@ -4,32 +4,39 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users_test")
 public class UserTest {
-
     @Id
+    @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
     @Column(name = "phone_number", length = 20, unique = true, nullable = false)
     private String phoneNumber;
 
-    @Column(name = "password", length = 255, nullable = false)
+    @Column(name = "password",  nullable = false)
     private String password;
 
-    @Column(name = "email", length = 255)
-    private String email;
-
-    @Column(name = "fullname", length = 255)
+    @Column(name = "fullname")
     private String fullname;
+
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
 
     @Column(name = "avatar", columnDefinition = "TEXT")
     private String avatar;
@@ -51,6 +58,7 @@ public class UserTest {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
+    @CreationTimestamp
     @Column(name = "last_login_time")
     private Timestamp lastLoginTime;
 }

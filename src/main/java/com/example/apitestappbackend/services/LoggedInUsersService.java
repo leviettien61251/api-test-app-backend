@@ -5,8 +5,10 @@ import com.example.apitestappbackend.DTO.Login.LoginRequest;
 import com.example.apitestappbackend.DTO.Login.LoginResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
+import com.example.apitestappbackend.models.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
+import com.example.apitestappbackend.repository.UserTestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +21,14 @@ import java.util.List;
 public class LoggedInUsersService {
     private final LoggedInUsersRepository loggedInUsersRepository;
     private final SignupNotYetLoginRepository signupNotYetLoginRepository;
+    private final UserTestRepository userTestRepository;
 
-    public LoggedInUsersService(LoggedInUsersRepository loggedInUsersRepository, SignupNotYetLoginRepository signupNotYetLoginRepository) {
+    public LoggedInUsersService(LoggedInUsersRepository loggedInUsersRepository,
+                                SignupNotYetLoginRepository signupNotYetLoginRepository,
+                                UserTestRepository userTestRepository) {
         this.loggedInUsersRepository = loggedInUsersRepository;
         this.signupNotYetLoginRepository = signupNotYetLoginRepository;
+        this.userTestRepository = userTestRepository;
     }
 
     public List<LoggedInUsers> findAll() {
@@ -73,8 +79,13 @@ public class LoggedInUsersService {
         return password != null && password.matches(regexPassword);
     }
 
+    private boolean isNewUser(String phoneNumber) {
+        return userTestRepository.existsByPhoneNumber(phoneNumber);
+    }
+
     public LoginResponse login(LoginRequest request) {
         LoggedInUsers savedL;
+        UserTest savedUT;
         try {
             if (request.getPhoneNumber() == null) {
                 return LoginResponse.builder()
@@ -126,15 +137,15 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
-            if (isPhoneNumberExists(request.getPhoneNumber().trim())) {
-                return LoginResponse.builder()
-                        .loginStatus("fail")
-                        .loginTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.USER_EXISTS.getCode())
-                        .message(ResponseCode.USER_EXISTS.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
+//            if (isPhoneNumberExists(request.getPhoneNumber().trim())) {
+//                return LoginResponse.builder()
+//                        .loginStatus("fail")
+//                        .loginTimestamp(new Timestamp(System.currentTimeMillis()))
+//                        .code(ResponseCode.USER_EXISTS.getCode())
+//                        .message(ResponseCode.USER_EXISTS.getMessage())
+//                        .usedInTest(false)
+//                        .build();
+//            }
             if (!isUserSignUp(request.getPhoneNumber().trim())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
@@ -169,6 +180,33 @@ public class LoggedInUsersService {
             l.setMessage(ResponseCode.SUCCESS.getMessage());
 
             savedL = loggedInUsersRepository.save(l);
+
+
+            if (!isNewUser(savedL.getPhoneNumber().trim())) {
+                UserTest ut = new UserTest();
+                ut.setPhoneNumber(l.getPhoneNumber());
+                ut.setPassword(l.getPassword());
+                ut.setFullname(l.getPhoneNumber());
+                ut.setAddress("");
+                ut.setAvatar("");
+                ut.setToken(l.getToken());
+                ut.setRefreshToken(l.getRefreshToken());
+                ut.setTokenExpiresAt(l.getTokenExpiresAt());
+
+                userTestRepository.save(ut);
+            } else {
+                UserTest utOld = userTestRepository.findByPhoneNumber(savedL.getPhoneNumber())
+                        .orElseThrow(
+                                () -> new IllegalArgumentException("User with phone number: " + savedL.getPhoneNumber() + "does not exist!"));
+
+                utOld.setToken(l.getToken());
+                utOld.setRefreshToken(l.getRefreshToken());
+                utOld.setTokenExpiresAt(l.getTokenExpiresAt());
+
+                userTestRepository.save(utOld);
+
+            }
+
 
             return LoginResponse.builder()
                     .loginStatus(savedL.getLoginStatus())

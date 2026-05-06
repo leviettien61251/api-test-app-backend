@@ -19,16 +19,19 @@ public class GetUserInfo {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "full_name")
-    private String fullName;
-
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    @Column(name = "full_name")
+    private String fullName;
 
     @Column(name = "avatar", columnDefinition = "TEXT")
     private String avatar;
 
-    @Column(length = 50, columnDefinition = "varchar(50)")
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
+
+    @Column(name = "status", length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
 
     @Column(name = "code", columnDefinition = "TEXT")

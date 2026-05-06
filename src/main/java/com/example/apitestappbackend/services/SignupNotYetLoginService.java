@@ -16,15 +16,14 @@ import java.util.List;
 @Service
 @Slf4j
 public class SignupNotYetLoginService {
-    private SignupNotYetLoginRepository signupNotYetLoginRepository;
+    private final SignupNotYetLoginRepository signupNotYetLoginRepository;
 
     public SignupNotYetLoginService(SignupNotYetLoginRepository signupNotYetLoginRepository) {
         this.signupNotYetLoginRepository = signupNotYetLoginRepository;
     }
 
     public List<SignupNotYetLogin> findAll_() {
-        List<SignupNotYetLogin> list = signupNotYetLoginRepository.findAll_();
-        return list;
+        return signupNotYetLoginRepository.findAll_();
     }
 
     public void insert(SignupNotYetLogin s) {
@@ -43,11 +42,6 @@ public class SignupNotYetLoginService {
         signupNotYetLoginRepository.deleteById(id);
     }
 
-    public boolean isPhoneNumberExists(String phone_number) {
-        List<SignupNotYetLogin> list =
-                signupNotYetLoginRepository.existsSignupNotYetLoginByPhone_number(phone_number);
-        return list.size() > 0;
-    }
 
     private boolean isPhoneNumberValid(String phoneNumber) {
         String regexPhoneNumber = "^(0|\\+84)(3[2-9]|5[6-9]|7[0-9]|8[1-9]|9[0-9])\\d{7}$";
@@ -55,7 +49,7 @@ public class SignupNotYetLoginService {
     }
 
     private boolean isPasswordValid(String password) {
-        String regexPassword = "^[^\\s]{6,50}$";
+        String regexPassword = "^\\S{6,50}$";
         return password != null && password.matches(regexPassword);
     }
 
@@ -64,12 +58,8 @@ public class SignupNotYetLoginService {
 
         int totalBulkTests = 10000;
         List<String> phones = new ArrayList<>();
-        List<SignUpRequest> requests = new ArrayList<>();
 
         for (int i = 0; i < totalBulkTests; i++) {
-            // Generate odd numbers: 1111111, 1111113, 1111115, ..., 1111309
-            // (increment by 2 to ensure all digits are odd)
-            //int phoneNumber = baseNumber + (i * 2);
             int phoneNumber = baseNumber + i;
             String viettelPhone = "0980" + String.format("%06d", phoneNumber);
             phones.add(viettelPhone);
@@ -84,7 +74,7 @@ public class SignupNotYetLoginService {
         String password = "111111";
         List<String> phones = generateSignUpData();
         List<SignupNotYetLogin> list = new ArrayList<>();
-        
+
         for (String p : phones) {
             SignupNotYetLogin s = new SignupNotYetLogin();
             s.setPhoneNumber(p);
@@ -94,7 +84,7 @@ public class SignupNotYetLoginService {
             s.setCode(ResponseCode.SUCCESS.getCode());
             s.setMessage(ResponseCode.SUCCESS.getMessage());
             list.add(s);
-            
+
             // Save in batches of 1000 to avoid memory issues
             if (list.size() == 1000) {
                 signupNotYetLoginRepository.saveAll(list);
@@ -102,7 +92,7 @@ public class SignupNotYetLoginService {
                 list.clear();
             }
         }
-        
+
         // Save remaining records
         if (!list.isEmpty()) {
             signupNotYetLoginRepository.saveAll(list);
