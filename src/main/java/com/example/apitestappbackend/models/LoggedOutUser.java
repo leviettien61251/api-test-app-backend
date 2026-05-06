@@ -1,14 +1,18 @@
 package com.example.apitestappbackend.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
 
 @Data
 @Entity
-@Table(name = "logout")
+@Table(name = "logged_out_user")
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoggedOutUser {
 
     @Id

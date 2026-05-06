@@ -19,7 +19,7 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users_test")
+@Table(name = "user_test")
 public class UserTest {
     @Id
     @UuidGenerator

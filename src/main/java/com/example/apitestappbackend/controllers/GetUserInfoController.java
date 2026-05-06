@@ -5,6 +5,7 @@ import com.example.apitestappbackend.DTO.GetUserInfo.GetUserInfoResponse;
 import com.example.apitestappbackend.services.GetUserInfoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ public class GetUserInfoController {
         this.getUserInfoService = getUserInfoService;
     }
 
+    @PostMapping("/get-user-info")
     public ResponseEntity<GetUserInfoResponse> getUserInfo(@RequestBody GetUserInfoRequest request) {
 
         GetUserInfoResponse res = getUserInfoService.getUserInfo(request);

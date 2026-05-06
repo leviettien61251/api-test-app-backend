@@ -8,6 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetUserInfoRequest {
-    private String id;
     private String phoneNumber;
 }
