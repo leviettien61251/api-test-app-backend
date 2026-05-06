@@ -21,9 +21,8 @@ public class SetUserInfo {
     @UuidGenerator
     private String  id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_AVATAR_USER_TEST"))
-    private UserTest user_id;
+    @Column(name = "phone_number", length = 20, unique = true, nullable = false)
+    private String phoneNumber;
 
     @Column(name = "new_full_name", length = 255)
     private String newFullName;
@@ -41,7 +40,7 @@ public class SetUserInfo {
     private String message;
 
     @Column(name = "time_stamp", length = 50)
-    private String timeStamp;
+    private Timestamp timeStamp;
 
     @Column(name = "used_in_test")
     private Boolean usedInTest = false;

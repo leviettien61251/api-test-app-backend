@@ -19,26 +19,19 @@ public class GetUserInfo {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_AVATAR_USER_TEST"))
-    private UserTest user_id;
+    @Column(name = "full_name")
+    private String fullName;
 
-    @Column(name = "retrieved_full_name" )
-    private String retrievedFullName;
+    @Column(name = "phone_number")
+    private String phoneNumber;
 
-    @Column(name = "retrieved_phone", length = 20)
-    private String retrievedPhone;
-
-    @Column(name = "retrieved_avatar", columnDefinition = "TEXT")
-    private String retrievedAvatar;
-
-    @Column(name = "retrieved_address", columnDefinition = "TEXT")
-    private String retrievedAddress;
+    @Column(name = "avatar", columnDefinition = "TEXT")
+    private String avatar;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
 
-    @Column(name = "code",  columnDefinition = "TEXT")
+    @Column(name = "code", columnDefinition = "TEXT")
     private String code;
 
     @Column(name = "message", columnDefinition = "TEXT")

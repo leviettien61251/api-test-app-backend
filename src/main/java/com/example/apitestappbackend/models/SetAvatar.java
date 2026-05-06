@@ -1,8 +1,10 @@
 package com.example.apitestappbackend.models;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
-import org.hibernate.annotations.ManyToAny;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
@@ -17,9 +19,8 @@ public class SetAvatar {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_AVATAR_USER_TEST"))
-    private UserTest user_id;
+    @Column(name = "phone_number", length = 20, unique = true, nullable = false)
+    private String phoneNumber;
 
     @Column(name = "avatar_url_input", columnDefinition = "TEXT")
     private String avatarUrlInput;

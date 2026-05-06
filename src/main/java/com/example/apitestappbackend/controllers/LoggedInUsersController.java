@@ -1,6 +1,5 @@
 package com.example.apitestappbackend.controllers;
 
-import com.example.apitestappbackend.DTO.Login.LoginData;
 import com.example.apitestappbackend.DTO.Login.LoginRequest;
 import com.example.apitestappbackend.DTO.Login.LoginResponse;
 import com.example.apitestappbackend.models.LoggedInUsers;
@@ -24,7 +23,7 @@ public class LoggedInUsersController {
     }
 
     @GetMapping("/logged-in-users")
-    public List<LoggedInUsers> getAll(){
+    public List<LoggedInUsers> getAll() {
         return loggedInUsersService.findAll();
     }
 
@@ -38,6 +37,7 @@ public class LoggedInUsersController {
                 : HttpStatus.BAD_REQUEST;
 
         return ResponseEntity
-                .status(status).body(res);
+                .status(status)
+                .body(res);
     }
 }
