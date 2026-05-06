@@ -71,7 +71,7 @@ public class SignupNotYetLoginService {
             // (increment by 2 to ensure all digits are odd)
             //int phoneNumber = baseNumber + (i * 2);
             int phoneNumber = baseNumber + i;
-            String viettelPhone = "098" + String.format("%06d", phoneNumber);
+            String viettelPhone = "0980" + String.format("%06d", phoneNumber);
             phones.add(viettelPhone);
             System.out.println(viettelPhone);
         }

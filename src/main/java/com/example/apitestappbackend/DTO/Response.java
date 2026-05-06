@@ -1,11 +1,12 @@
 package com.example.apitestappbackend.DTO;
 
-import lombok.*;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.sql.Timestamp;
 
-@Getter
-@Setter
+@Data
+@SuperBuilder
 public class Response {
     private String status;
     private String code;
@@ -13,6 +14,7 @@ public class Response {
     private Timestamp createdAt;
 
     public Response() {
+        super();
     }
 
     public Response(String status, String code, String message, Timestamp createdAt) {

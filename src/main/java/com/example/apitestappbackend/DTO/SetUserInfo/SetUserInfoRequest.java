@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SetUserInfoRequest {
     private String fullName;
-    private String phoneName;
-    private String password;
+    private String phoneNumber;
+    private String address;
 }

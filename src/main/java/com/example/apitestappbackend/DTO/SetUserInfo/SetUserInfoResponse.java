@@ -1,15 +1,13 @@
 package com.example.apitestappbackend.DTO.SetUserInfo;
 
 import com.example.apitestappbackend.DTO.Response;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.sql.Timestamp;
 
-@Builder
-@Getter
-@Setter
+@Data
+@SuperBuilder
 public class SetUserInfoResponse extends Response {
 
     private Timestamp timestamp;
