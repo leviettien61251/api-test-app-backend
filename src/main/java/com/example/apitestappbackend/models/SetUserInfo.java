@@ -21,14 +21,14 @@ public class SetUserInfo {
     @UuidGenerator
     private String  id;
 
-    @Column(name = "phone_number", length = 20, unique = true, nullable = false)
+    @Column(name = "phone_number", length = 20, nullable = false)
     private String phoneNumber;
 
-    @Column(name = "new_full_name", length = 255)
-    private String newFullName;
+    @Column(name = "full_name")
+    private String fullName;
 
-    @Column(name = "new_address", columnDefinition = "TEXT")
-    private String newAddress;
+    @Column(name = "address", columnDefinition = "TEXT")
+    private String address;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

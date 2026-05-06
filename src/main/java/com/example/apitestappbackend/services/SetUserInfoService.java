@@ -111,9 +111,9 @@ public class SetUserInfoService {
 
 
             SetUserInfo newS = new SetUserInfo();
-            newS.setNewFullName(request.getFullName().trim());
+            newS.setFullName(request.getFullName().trim());
             newS.setPhoneNumber(request.getPhoneNumber().trim());
-            newS.setNewAddress(request.getAddress().trim());
+            newS.setAddress(request.getAddress().trim());
             newS.setStatus("success");
             newS.setCode(ResponseCode.SUCCESS.getCode());
             newS.setMessage(ResponseCode.SUCCESS.getMessage());
@@ -129,9 +129,9 @@ public class SetUserInfoService {
                     .createdAt(savedS.getCreatedAt())
                     .data(new SetUserInfoData(
                                     savedS.getId(),
-                                    savedS.getNewFullName(),
+                                    savedS.getFullName(),
                                     savedS.getPhoneNumber(),
-                                    savedS.getNewAddress()
+                                    savedS.getAddress()
                             )
                     )
                     .build();

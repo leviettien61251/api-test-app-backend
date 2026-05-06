@@ -16,7 +16,7 @@ public class LoggedOutUser {
     @Column(name = "id", updatable = false, nullable = false)
     private String id;
 
-    @Column(name = "phone_number", length = 20, unique = true, nullable = false)
+    @Column(name = "phone_number", length = 20, nullable = false)
     private String phoneNumber;
 
     @Column(name = "invalidated_token", columnDefinition = "TEXT")

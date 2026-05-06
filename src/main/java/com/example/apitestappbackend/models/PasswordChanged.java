@@ -23,7 +23,7 @@ public class PasswordChanged {
     @Id
     @UuidGenerator
     private String id;
-    @Column(length = 20, unique = true)
+    @Column(length = 20)
     private String phoneNumber;
     @Column(nullable = false, length = 100)
     private String oldPassword;

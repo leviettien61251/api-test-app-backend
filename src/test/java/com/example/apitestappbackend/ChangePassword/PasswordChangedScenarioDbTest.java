@@ -7,6 +7,7 @@ import com.example.apitestappbackend.models.PasswordChanged;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.PasswordChangedRepository;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
+import com.example.apitestappbackend.repository.UserTestRepository;
 import com.example.apitestappbackend.services.LoggedInUsersService;
 import com.example.apitestappbackend.services.PasswordChangedService;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,9 @@ public class PasswordChangedScenarioDbTest {
     @Autowired
     private SignupNotYetLoginRepository signupNotYetLoginRepository;
 
+    @Autowired
+    private UserTestRepository userTestRepository;
+
     private PasswordChangedService passwordChangedService;
     private LoggedInUsersService loggedInUsersService;
 
@@ -52,7 +56,7 @@ public class PasswordChangedScenarioDbTest {
         loggedInUsersRepository.deleteAll();
         signupNotYetLoginRepository.deleteAll();
 
-        loggedInUsersService = new LoggedInUsersService(loggedInUsersRepository, signupNotYetLoginRepository);
+        loggedInUsersService = new LoggedInUsersService(loggedInUsersRepository, signupNotYetLoginRepository, userTestRepository);
         passwordChangedService = new PasswordChangedService(passwordChangedRepository, loggedInUsersRepository, loggedInUsersService);
     }
 
