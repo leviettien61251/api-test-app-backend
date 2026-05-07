@@ -5,8 +5,10 @@ import com.example.apitestappbackend.DTO.SetUserInfo.SetUserInfoRequest;
 import com.example.apitestappbackend.DTO.SetUserInfo.SetUserInfoResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.SetUserInfo;
+import com.example.apitestappbackend.models.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.SetUserInfoRepository;
+import com.example.apitestappbackend.repository.UserTestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +20,12 @@ import java.util.List;
 public class SetUserInfoService {
     private final SetUserInfoRepository setUserInfoRepository;
     private final LoggedInUsersRepository loggedInUsersRepository;
+    private final UserTestRepository userTestRepository;
 
-    public SetUserInfoService(SetUserInfoRepository setUserInfoRepository, LoggedInUsersRepository loggedInUsersRepository) {
+    public SetUserInfoService(SetUserInfoRepository setUserInfoRepository, LoggedInUsersRepository loggedInUsersRepository, UserTestRepository userTestRepository) {
         this.setUserInfoRepository = setUserInfoRepository;
         this.loggedInUsersRepository = loggedInUsersRepository;
+        this.userTestRepository = userTestRepository;
     }
 
     public List<SetUserInfo> findAll() {
@@ -48,13 +52,16 @@ public class SetUserInfoService {
         String regexPhoneNumber = "^(0|\\+84)(3[2-9]|5[6-9]|7[0-9]|8[1-9]|9[0-9])\\d{7}$";
         return phoneNumber != null && phoneNumber.matches(regexPhoneNumber);
     }
+
     private boolean isNameValid(String name) {
         String regexName = "^[a-zA-Z\\s]+$";
         return name != null && name.matches(regexName);
 
     }
+
     public SetUserInfoResponse setUserInfo(SetUserInfoRequest request) {
         SetUserInfo savedS;
+        UserTest savedUT;
 
         try {
             if (request.getFullName().isBlank()) {
@@ -109,7 +116,7 @@ public class SetUserInfoService {
                         .build();
             }
 
-
+            //lưu thông tin vào table set_user_info
             SetUserInfo newS = new SetUserInfo();
             newS.setFullName(request.getFullName().trim());
             newS.setPhoneNumber(request.getPhoneNumber().trim());
@@ -119,6 +126,15 @@ public class SetUserInfoService {
             newS.setMessage(ResponseCode.SUCCESS.getMessage());
             newS.setUsedInTest(false);
             savedS = setUserInfoRepository.save(newS);
+
+            //update thong tin vao table user_test (fullName, address)
+            UserTest newUT = userTestRepository.findByPhoneNumber(newS.getPhoneNumber()).orElseThrow(
+                    () -> new IllegalArgumentException("User with phone number: " + newS.getPhoneNumber() + " does not exist!")
+            );
+            newUT.setFullname(newS.getFullName());
+            newUT.setAddress(newS.getAddress());
+
+            userTestRepository.save(newUT);
 
             return SetUserInfoResponse.builder()
                     .timestamp(savedS.getTimeStamp())

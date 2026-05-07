@@ -63,7 +63,7 @@ public class GetUserInfoService {
                         .createdAt(new Timestamp(System.currentTimeMillis()))
                         .build();
             }
-
+            //lay thong tin userTest tu database
             userTest = userTestRepository.findByPhoneNumber(request.getPhoneNumber().trim())
                     .orElseThrow(
                             () -> new IllegalArgumentException("User with phone number: " + request.getPhoneNumber().trim() + "does not exist!")
@@ -71,6 +71,7 @@ public class GetUserInfoService {
 
             GetUserInfo newGUI = new GetUserInfo();
             newGUI.setPhoneNumber(request.getPhoneNumber().trim());
+            //gan thong tin vao newGUI
             newGUI.setFullName(userTest.getFullname());
             newGUI.setAvatar(userTest.getAvatar());
             newGUI.setAddress(userTest.getAddress());
@@ -80,7 +81,7 @@ public class GetUserInfoService {
             newGUI.setMessage(ResponseCode.SUCCESS.getMessage());
             newGUI.setUsedInTest(false);
             newGUI.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
+            //luu vao database
             savedGUI = getUserInfoRepository.save(newGUI);
 
             return GetUserInfoResponse.builder()
