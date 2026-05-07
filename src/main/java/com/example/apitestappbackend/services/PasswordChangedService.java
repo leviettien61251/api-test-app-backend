@@ -1,8 +1,8 @@
 package com.example.apitestappbackend.services;
 
-import com.example.apitestappbackend.DTO.PasswordChanged.PasswordChangedData;
-import com.example.apitestappbackend.DTO.PasswordChanged.PasswordChangedRequest;
-import com.example.apitestappbackend.DTO.PasswordChanged.PasswordChangedResponse;
+import com.example.apitestappbackend.DTO.PasswordChangedTest.PasswordChangedData;
+import com.example.apitestappbackend.DTO.PasswordChangedTest.PasswordChangedRequest;
+import com.example.apitestappbackend.DTO.PasswordChangedTest.PasswordChangedResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.models.PasswordChanged;

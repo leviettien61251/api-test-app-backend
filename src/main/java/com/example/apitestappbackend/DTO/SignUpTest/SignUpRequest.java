@@ -1,4 +1,4 @@
-package com.example.apitestappbackend.DTO.SignUp;
+package com.example.apitestappbackend.DTO.SignUpTest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

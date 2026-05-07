@@ -1,15 +1,14 @@
-package com.example.apitestappbackend.DTO.Login;
+package com.example.apitestappbackend.DTO.SignUpTest;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginData {
+public class SignUpData {
     private String id;
     private String phoneNumber;
     private Timestamp createdAt;

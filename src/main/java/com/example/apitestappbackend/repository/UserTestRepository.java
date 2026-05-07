@@ -11,4 +11,8 @@ public interface UserTestRepository extends JpaRepository<UserTest, String> {
     boolean existsByPhoneNumber(String phoneNumber);
 
     Optional<UserTest> findByPhoneNumber(String phoneNumber);
+
+    boolean existsByToken(String token);
+
+    Optional<UserTest> findByToken(String token);
 }

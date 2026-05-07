@@ -1,7 +1,7 @@
 package com.example.apitestappbackend.SignUp;
 
-import com.example.apitestappbackend.DTO.SignUp.SignUpRequest;
-import com.example.apitestappbackend.DTO.SignUp.SignUpResponse;
+import com.example.apitestappbackend.DTO.SignUpTest.SignUpRequest;
+import com.example.apitestappbackend.DTO.SignUpTest.SignUpResponse;
 import com.example.apitestappbackend.models.SignupNotYetLogin;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
 import org.junit.jupiter.api.BeforeEach;

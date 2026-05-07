@@ -1,7 +1,7 @@
 package com.example.apitestappbackend.Login;
 
-import com.example.apitestappbackend.DTO.Login.LoginRequest;
-import com.example.apitestappbackend.DTO.Login.LoginResponse;
+import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
+import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.models.SignupNotYetLogin;

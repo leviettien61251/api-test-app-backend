@@ -1,7 +1,7 @@
 package com.example.apitestappbackend.controllers;
 
-import com.example.apitestappbackend.DTO.SignUp.SignUpRequest;
-import com.example.apitestappbackend.DTO.SignUp.SignUpResponse;
+import com.example.apitestappbackend.DTO.SignUpTest.SignUpRequest;
+import com.example.apitestappbackend.DTO.SignUpTest.SignUpResponse;
 import com.example.apitestappbackend.models.SignupNotYetLogin;
 import com.example.apitestappbackend.services.SignupNotYetLoginService;
 import jakarta.validation.Valid;
