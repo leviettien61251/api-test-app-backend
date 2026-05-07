@@ -35,7 +35,7 @@ public class LoggedOutUser {
     private String message;
 
     @Column(name = "time_stamp", length = 50)
-    private String timeStamp;
+    private Timestamp timeStamp;
 
     @Column(name = "used_in_test")
     private Boolean usedInTest = false;
@@ -43,4 +43,5 @@ public class LoggedOutUser {
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 }
+
 

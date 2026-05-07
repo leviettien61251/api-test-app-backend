@@ -1,8 +1,8 @@
 package com.example.apitestappbackend.services;
 
-import com.example.apitestappbackend.DTO.SignUp.SignUpData;
-import com.example.apitestappbackend.DTO.SignUp.SignUpRequest;
-import com.example.apitestappbackend.DTO.SignUp.SignUpResponse;
+import com.example.apitestappbackend.DTO.SignUpTest.SignUpData;
+import com.example.apitestappbackend.DTO.SignUpTest.SignUpRequest;
+import com.example.apitestappbackend.DTO.SignUpTest.SignUpResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.SignupNotYetLogin;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LoggedOutUserRepository extends JpaRepository<LoggedOutUser, String> {
+    boolean existsByInvalidatedToken(String invalidatedToken);
+
 }

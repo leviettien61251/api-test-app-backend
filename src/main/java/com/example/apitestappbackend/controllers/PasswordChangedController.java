@@ -1,7 +1,7 @@
 package com.example.apitestappbackend.controllers;
 
-import com.example.apitestappbackend.DTO.PasswordChanged.PasswordChangedRequest;
-import com.example.apitestappbackend.DTO.PasswordChanged.PasswordChangedResponse;
+import com.example.apitestappbackend.DTO.PasswordChangedTest.PasswordChangedRequest;
+import com.example.apitestappbackend.DTO.PasswordChangedTest.PasswordChangedResponse;
 import com.example.apitestappbackend.models.PasswordChanged;
 import com.example.apitestappbackend.services.PasswordChangedService;
 import jakarta.validation.Valid;

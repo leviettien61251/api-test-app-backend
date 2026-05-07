@@ -1,8 +1,8 @@
 package com.example.apitestappbackend.services;
 
-import com.example.apitestappbackend.DTO.Login.LoginData;
-import com.example.apitestappbackend.DTO.Login.LoginRequest;
-import com.example.apitestappbackend.DTO.Login.LoginResponse;
+import com.example.apitestappbackend.DTO.LoginTest.LoginData;
+import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
+import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.models.UserTest;
@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -167,7 +166,6 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
-
 
             LoggedInUsers l = new LoggedInUsers();
             l.setPhoneNumber(request.getPhoneNumber().trim());

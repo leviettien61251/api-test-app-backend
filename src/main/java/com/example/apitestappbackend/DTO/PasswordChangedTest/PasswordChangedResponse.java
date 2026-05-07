@@ -1,4 +1,4 @@
-package com.example.apitestappbackend.DTO.PasswordChanged;
+package com.example.apitestappbackend.DTO.PasswordChangedTest;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
