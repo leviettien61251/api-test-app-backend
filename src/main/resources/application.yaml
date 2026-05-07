@@ -16,4 +16,6 @@ spring:
       hibernate:
         format_sql: true
     show-sql: true
+jwt:
+  secret: mysuper secretkey123456789012345678
 

@@ -14,7 +14,6 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoggedOutUser {
-
     @Id
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)

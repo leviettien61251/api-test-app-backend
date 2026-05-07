@@ -9,7 +9,9 @@ import com.example.apitestappbackend.models.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
+import com.example.apitestappbackend.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -19,6 +21,9 @@ import java.util.List;
 @Service
 @Slf4j
 public class LoggedInUsersService {
+    @Autowired
+    private JwtUtil jwtUtil;
+
     private final LoggedInUsersRepository loggedInUsersRepository;
     private final SignupNotYetLoginRepository signupNotYetLoginRepository;
     private final UserTestRepository userTestRepository;
@@ -84,6 +89,11 @@ public class LoggedInUsersService {
     }
 
     public LoginResponse login(LoginRequest request) {
+
+        String token = jwtUtil.generateToken(request.getPhoneNumber().trim());
+        String refreshToken = jwtUtil.generateRefreshToken(request.getPhoneNumber().trim());
+        Timestamp tokenExpiresAt = jwtUtil.getExpiration(token);
+
         LoggedInUsers savedL;
         UserTest savedUT;
         try {
@@ -163,9 +173,9 @@ public class LoggedInUsersService {
             l.setPhoneNumber(request.getPhoneNumber().trim());
             l.setPassword(request.getPassword().trim());
             l.setLoginStatus("success");
-            l.setToken("token was set");
-            l.setRefreshToken("refresh token");
-            l.setTokenExpiresAt(Timestamp.from(Instant.now().plusSeconds(3600)));
+            l.setToken(token);
+            l.setRefreshToken(refreshToken);
+            l.setTokenExpiresAt(tokenExpiresAt);
             l.setUsedInTest(false);
             l.setCode(ResponseCode.SUCCESS.getCode());
             l.setMessage(ResponseCode.SUCCESS.getMessage());
