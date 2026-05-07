@@ -137,15 +137,6 @@ public class LoggedInUsersService {
                         .usedInTest(false)
                         .build();
             }
-//            if (isPhoneNumberExists(request.getPhoneNumber().trim())) {
-//                return LoginResponse.builder()
-//                        .loginStatus("fail")
-//                        .loginTimestamp(new Timestamp(System.currentTimeMillis()))
-//                        .code(ResponseCode.USER_EXISTS.getCode())
-//                        .message(ResponseCode.USER_EXISTS.getMessage())
-//                        .usedInTest(false)
-//                        .build();
-//            }
             if (!isUserSignUp(request.getPhoneNumber().trim())) {
                 return LoginResponse.builder()
                         .loginStatus("fail")
@@ -179,14 +170,16 @@ public class LoggedInUsersService {
             l.setCode(ResponseCode.SUCCESS.getCode());
             l.setMessage(ResponseCode.SUCCESS.getMessage());
 
+            //lưu data vào logged_in_users
             savedL = loggedInUsersRepository.save(l);
 
-
+            //kiểm tra xem user cũ hay mới
             if (!isNewUser(savedL.getPhoneNumber().trim())) {
+                //nếu mới thì lưu userTest mới
                 UserTest ut = new UserTest();
                 ut.setPhoneNumber(l.getPhoneNumber());
                 ut.setPassword(l.getPassword());
-                ut.setFullname(l.getPhoneNumber());
+                ut.setFullname(l.getPhoneNumber());// user mới mặc định fullName là sđt
                 ut.setAddress("");
                 ut.setAvatar("");
                 ut.setToken(l.getToken());
@@ -195,14 +188,15 @@ public class LoggedInUsersService {
 
                 userTestRepository.save(ut);
             } else {
+                //nếu cũ thì tìm userTest theo số điện thoại
                 UserTest utOld = userTestRepository.findByPhoneNumber(savedL.getPhoneNumber())
                         .orElseThrow(
                                 () -> new IllegalArgumentException("User with phone number: " + savedL.getPhoneNumber() + "does not exist!"));
-
+                //gán token mới
                 utOld.setToken(l.getToken());
                 utOld.setRefreshToken(l.getRefreshToken());
                 utOld.setTokenExpiresAt(l.getTokenExpiresAt());
-
+                //lưu lại
                 userTestRepository.save(utOld);
 
             }
