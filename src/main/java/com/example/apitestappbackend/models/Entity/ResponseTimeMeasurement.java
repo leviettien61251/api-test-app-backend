@@ -8,11 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "response_time_measurements", indexes = {
-        @Index(name = "idx_request_measured", columnList = "request_id, measured_at"),
-        @Index(name = "idx_collection_measured", columnList = "collection_id, measured_at"),
-        @Index(name = "idx_user_id", columnList = "user_id")
-})
+@Table(name = "response_time_measurements")
 public class ResponseTimeMeasurement {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

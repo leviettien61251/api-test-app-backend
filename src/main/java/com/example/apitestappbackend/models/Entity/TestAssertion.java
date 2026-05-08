@@ -9,10 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "test_assertions", indexes = {
-        @Index(name = "idx_test_execution_id", columnList = "test_execution_id"),
-        @Index(name = "idx_passed", columnList = "passed")
-})
+@Table(name = "test_assertions")
 public class TestAssertion {
     @Id
     @UuidGenerator

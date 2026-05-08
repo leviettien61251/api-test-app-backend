@@ -12,11 +12,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "requests", indexes = {
-        @Index(name = "idx_collection_id", columnList = "collection_id"),
-        @Index(name = "idx_folder_id", columnList = "folder_id"),
-        @Index(name = "idx_method", columnList = "method")
-})
+@Table(name = "requests")
 public class Request {
     @Id
     @UuidGenerator

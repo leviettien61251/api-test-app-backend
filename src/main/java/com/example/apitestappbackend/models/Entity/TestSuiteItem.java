@@ -6,12 +6,7 @@ import org.hibernate.annotations.UuidGenerator;
 
 @Data
 @Entity
-@Table(name = "test_suite_items", indexes = {
-        @Index(name = "idx_test_suite_id", columnList = "test_suite_id"),
-        @Index(name = "idx_request_id", columnList = "request_id"),
-        @Index(name = "idx_scenario_id", columnList = "scenario_id"),
-        @Index(name = "idx_unique_item", columnList = "test_suite_id, request_id, scenario_id", unique = true)
-})
+@Table(name = "test_suite_items")
 public class TestSuiteItem {
     @Id
     @UuidGenerator

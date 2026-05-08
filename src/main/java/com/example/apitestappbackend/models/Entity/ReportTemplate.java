@@ -12,10 +12,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "report_templates", indexes = {
-        @Index(name = "idx_user_id", columnList = "user_id"),
-        @Index(name = "idx_report_type", columnList = "report_type")
-})
+@Table(name = "report_templates")
 public class ReportTemplate {
     @Id
     @UuidGenerator

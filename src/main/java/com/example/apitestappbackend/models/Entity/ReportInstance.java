@@ -11,12 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "report_instances", indexes = {
-        @Index(name = "idx_template_id", columnList = "template_id"),
-        @Index(name = "idx_user_id", columnList = "user_id"),
-        @Index(name = "idx_test_run_id", columnList = "test_run_id"),
-        @Index(name = "idx_generated_at", columnList = "generated_at")
-})
+@Table(name = "report_instances")
 public class ReportInstance {
     @Id
     @UuidGenerator

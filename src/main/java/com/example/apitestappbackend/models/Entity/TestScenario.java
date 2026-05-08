@@ -12,10 +12,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "test_scenarios", indexes = {
-        @Index(name = "idx_collection_id", columnList = "collection_id"),
-        @Index(name = "idx_class_method", columnList = "class_name, method_name", unique = true)
-})
+@Table(name = "test_scenarios")
 public class TestScenario {
     @Id
     @UuidGenerator
