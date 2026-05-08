@@ -9,12 +9,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "error_events", indexes = {
-        @Index(name = "idx_user_occurred", columnList = "user_id, occurred_at"),
-        @Index(name = "idx_error_occurred", columnList = "error_type, occurred_at"),
-        @Index(name = "idx_test_run_id", columnList = "test_run_id"),
-        @Index(name = "idx_collection_id", columnList = "collection_id")
-})
+@Table(name = "error_events")
 public class ErrorEvent {
     @Id
     @UuidGenerator

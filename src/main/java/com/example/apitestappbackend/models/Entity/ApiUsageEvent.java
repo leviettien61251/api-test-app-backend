@@ -11,11 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "api_usage_events", indexes = {
-        @Index(name = "idx_user_created", columnList = "user_id, created_at"),
-        @Index(name = "idx_event_created", columnList = "event_type, created_at"),
-        @Index(name = "idx_collection_id", columnList = "collection_id")
-})
+@Table(name = "api_usage_events")
 public class ApiUsageEvent {
     @Id
     @UuidGenerator

@@ -10,13 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "test_executions", indexes = {
-        @Index(name = "idx_test_run_id", columnList = "test_run_id"),
-        @Index(name = "idx_test_suite_item_id", columnList = "test_suite_item_id"),
-        @Index(name = "idx_request_id", columnList = "request_id"),
-        @Index(name = "idx_scenario_id", columnList = "scenario_id"),
-        @Index(name = "idx_status", columnList = "status")
-})
+@Table(name = "test_executions")
 public class TestExecution {
     @Id
     @UuidGenerator

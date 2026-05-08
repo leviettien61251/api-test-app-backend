@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
@@ -17,7 +18,6 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SetAvatar {
-
     @Id
     @UuidGenerator
     @Column(name = "id", updatable = false, nullable = false)
@@ -38,12 +38,14 @@ public class SetAvatar {
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 
+    @CreationTimestamp
     @Column(name = "time_stamp", length = 50)
-    private String timeStamp;
+    private Timestamp timeStamp;
 
     @Column(name = "used_in_test")
     private Boolean usedInTest = false;
 
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 }
