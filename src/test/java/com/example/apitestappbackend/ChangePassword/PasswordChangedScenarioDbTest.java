@@ -65,9 +65,9 @@ public class PasswordChangedScenarioDbTest {
     class Scenario1_SuccessChange {
         @Test
         void shouldChangePasswordWhenOldPasswordCorrect() {
-            String phone = "0912345678";
-            String oldPass = "OldPass123";
-            String newPass = "NewPass123";
+            String phone = "0982345678";
+            String oldPass = "111111";
+            String newPass = "222222";
 
             // prepare logged in user
             LoggedInUsers u = new LoggedInUsers();
@@ -93,10 +93,10 @@ public class PasswordChangedScenarioDbTest {
     class Scenario2_WrongOldPassword {
         @Test
         void shouldNotChangeWhenOldPasswordIncorrect() {
-            String phone = "0912345679";
-            String realPass = "RealPass123";
-            String wrongOld = "BadPass";
-            String newPass = "NewPass123";
+            String phone = "0982345679";
+            String realPass = "111111";
+            String wrongOld = "222222";
+            String newPass = "333333";
 
             LoggedInUsers u = new LoggedInUsers();
             u.setPhoneNumber(phone);
@@ -135,10 +135,10 @@ public class PasswordChangedScenarioDbTest {
     class Scenario4_MissingOldPassword {
         @Test
         void shouldNotChangeWhenOldPasswordNull() {
-            String phone = "0912111222";
+            String phone = "0982111222";
             LoggedInUsers u = new LoggedInUsers();
             u.setPhoneNumber(phone);
-            u.setPassword("SomePass");
+            u.setPassword("111111");
             u.setLoginStatus("success");
             loggedInUsersRepository.save(u);
 
@@ -157,8 +157,8 @@ public class PasswordChangedScenarioDbTest {
     class Scenario5_MissingNewPassword {
         @Test
         void shouldNotChangeWhenNewPasswordNull() {
-            String phone = "0912111333";
-            String oldPass = "OldPass123";
+            String phone = "0982111333";
+            String oldPass = "111111";
             LoggedInUsers u = new LoggedInUsers();
             u.setPhoneNumber(phone);
             u.setPassword(oldPass);
@@ -180,8 +180,8 @@ public class PasswordChangedScenarioDbTest {
     class Scenario6_NewPasswordInvalid {
         @Test
         void shouldNotChangeWhenNewPasswordTooShort() {
-            String phone = "0912111444";
-            String oldPass = "OldValid123";
+            String phone = "0982111444";
+            String oldPass = "111111";
             String shortNew = "a"; // too short per business rule
 
             LoggedInUsers u = new LoggedInUsers();
@@ -206,8 +206,8 @@ public class PasswordChangedScenarioDbTest {
     class Scenario7_NewSameAsOld {
         @Test
         void shouldNotChangeWhenNewSameAsOld() {
-            String phone = "0912111555";
-            String pass = "SamePass123";
+            String phone = "0982111555";
+            String pass = "111111";
             LoggedInUsers u = new LoggedInUsers();
             u.setPhoneNumber(phone);
             u.setPassword(pass);
