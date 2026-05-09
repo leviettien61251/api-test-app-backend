@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -113,7 +112,7 @@ public class SetAvatarService {
         } catch (Exception e) {
             return SetAvatarResponse.builder()
                     .status("fail")
-                    .timestamp(new Timestamp(LocalDateTime.now().toEpochSecond(java.time.ZoneOffset.UTC) * 1000))
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
                     .code(ResponseCode.INTERNAL_SERVER_ERROR.getCode())
                     .message(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
                     .usedInTest(false)

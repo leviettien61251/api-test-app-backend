@@ -37,7 +37,7 @@ public class LoginScenariaDbTest {
     private static final String VALID_PHONE = "0901234567";
     private static final String VALID_PHONE_2 = "0912345678";
     private static final String INVALID_PHONE = "123";
-    private static final String VALID_PASSWORD = "password123";
+    private static final String VALID_PASSWORD = "111111";
     private static final String WRONG_PASSWORD = "wrongpassword";
 
     @BeforeEach
