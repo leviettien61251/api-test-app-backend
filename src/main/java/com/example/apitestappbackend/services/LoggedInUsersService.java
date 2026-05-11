@@ -11,13 +11,12 @@ import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
 import com.example.apitestappbackend.util.JwtUtil;
-import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -91,14 +90,50 @@ public class LoggedInUsersService {
     }
 
     private boolean isPhoneNumberEven(String phoneNumber) {
-        return phoneNumber != null && phoneNumber.length() % 2 == 0;
+        return phoneNumber != null && Integer.parseInt(phoneNumber) % 2 == 0;
     }
 
-    public void generateLoginData(){
+    public void generateLoginData() {
         List<SignupNotYetLogin> signUpList = signupNotYetLoginRepository.findAll();
+        List<String> phones = new ArrayList<>();
+        List<LoggedInUsers> loggedList = new ArrayList<>();
+
+
+        if (signUpList.isEmpty()) {
+            log.info("No signup data found");
+        }
+
         for (SignupNotYetLogin s : signUpList) {
             System.out.println(s.getPhoneNumber() + " " + s.getPassword());
+
+            if (isPhoneNumberEven(s.getPhoneNumber().trim())) {
+                log.info("Phone number is even: {}", s.getPhoneNumber());
+                phones.add(s.getPhoneNumber());
+//                LoginRequest request = new LoginRequest(s.getPhoneNumber().trim(), s.getPassword().trim());
+//                login(request);
+
+                LoggedInUsers l = new LoggedInUsers();
+                l.setPhoneNumber(s.getPhoneNumber().trim());
+                l.setPassword(s.getPassword().trim());
+                l.setLoginStatus("success");
+                l.setToken(jwtUtil.generateToken(s.getPhoneNumber().trim()));
+                l.setRefreshToken(jwtUtil.generateRefreshToken(s.getPhoneNumber().trim()));
+                l.setTokenExpiresAt(jwtUtil.getExpiration(l.getToken()));
+                l.setUsedInTest(false);
+                l.setCode(ResponseCode.SUCCESS.getCode());
+                l.setMessage(ResponseCode.SUCCESS.getMessage());
+
+                loggedList.add(l);
+                if (phones.size() == 1000) {
+                    log.info("Saving {} records", phones.size());
+                    loggedInUsersRepository.saveAll(loggedList);
+                    phones.clear();
+                }
+            }
+
         }
+        log.info("Completed saving records");
+
     }
 
     public LoginResponse login(LoginRequest request) {

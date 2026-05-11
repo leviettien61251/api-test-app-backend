@@ -156,28 +156,6 @@ public class LoginScenariaDbTest {
                 "User should NOT be saved in logged_in_users table");
     }
 
-//    @Test
-//    @DisplayName("Testcase 4: Valid phone, no password (null) - Should PASS (Login fails)")
-//    void testLoginWithValidPhoneButNullPassword() {
-//        // Arrange - Create registered user
-//        createAndSaveSignupUser(VALID_PHONE, VALID_PASSWORD);
-//
-//        LoginRequest request = new LoginRequest(VALID_PHONE, "");
-//
-//        // Act - Call login service with null password
-//        LoginResponse response = loggedInUsersService.login(request);
-//
-//        // Assert - Login should fail
-//        assertNotNull(response, "Response should not be null");
-//        assertEquals("fail", response.getLoginStatus(), "Login status should be fail");
-//        assertEquals(ResponseCode.PASSWORD_INCORRECT.getCode(), response.getCode());
-//        assertNull(response.getToken(), "Token should not be generated");
-//
-//        // Verify record is NOT saved
-//        assertFalse(loggedInUsersRepository.existsByPhoneNumber(VALID_PHONE),
-//                "User should NOT be saved in logged_in_users table");
-//    }
-
     @Test
     @DisplayName("Testcase 4: Valid phone, empty password - Should PASS (Login fails)")
     void testLoginWithValidPhoneButEmptyPassword() {
@@ -200,18 +178,6 @@ public class LoginScenariaDbTest {
         assertFalse(loggedInUsersRepository.existsByPhoneNumber(VALID_PHONE),
                 "User should NOT be saved in logged_in_users table");
     }
-
-//    @Test
-//    @DisplayName("Testcase 5: No phone (null), valid password - Should PASS (Login fails)")
-//    void testLoginWithNullPhoneButValidPassword() {
-//        // Arrange
-//        LoginRequest request = new LoginRequest("", VALID_PASSWORD);
-//
-//        // Act & Assert - Should throw exception for null phone
-//        assertThrows(Exception.class, () -> {
-//            loggedInUsersService.login(request);
-//        }, "Should throw exception for null phone number");
-//    }
 
     @Test
     @DisplayName("Testcase 5: Invalid phone format, valid password - Should PASS (Login fails)")
@@ -256,18 +222,6 @@ public class LoginScenariaDbTest {
         assertFalse(loggedInUsersRepository.existsByPhoneNumber(""),
                 "User should NOT be saved in logged_in_users table");
     }
-
-//    @Test
-//    @DisplayName("Testcase 6: No phone and no password (both null) - Should PASS (Login fails)")
-//    void testLoginWithNullPhoneAndNullPassword() {
-//        // Arrange
-//        LoginRequest request = new LoginRequest(null, null);
-//
-//        // Act & Assert - Should throw exception
-//        assertThrows(Exception.class, () -> {
-//            loggedInUsersService.login(request);
-//        }, "Should throw exception for null phone number");
-//    }
 
     @Test
     @DisplayName("Testcase 7: Empty phone and empty password - Should PASS (Login fails)")
