@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -34,6 +35,54 @@ public class LoggedOutUserService {
         return exists && !invalidated;
     }
 
+
+    private boolean isPhoneNumberEvenAndDivisonBy8(String phoneNumber) {
+        return phoneNumber != null && Integer.parseInt(phoneNumber) % 2 == 0 && Integer.parseInt(phoneNumber) % 8 == 0;
+    }
+
+    public void testLogoutData() {
+        List<UserTest> userTestList = userTestRepository.findAll();
+        List<LoggedOutUser> logoutList = new ArrayList<>();
+
+        if (userTestList.isEmpty()) {
+            log.info("No user test data found");
+            return;
+        }
+
+        for (UserTest item : userTestList) {
+            System.out.println(item.getPhoneNumber() + " " + item.getPassword());
+            if (isPhoneNumberEvenAndDivisonBy8(item.getPhoneNumber().trim())) {
+
+                // Tạo LoggedOutUser record
+                LoggedOutUser l = new LoggedOutUser();
+                l.setPhoneNumber(item.getPhoneNumber().trim());
+                l.setInvalidatedToken(item.getToken());
+                l.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+                l.setStatus("success");
+                l.setCode(ResponseCode.SUCCESS.getCode());
+                l.setMessage(ResponseCode.SUCCESS.getMessage());
+                l.setUsedInTest(false);
+                l.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+                logoutList.add(l);
+
+                // Clear token info trong UserTest
+                userTestRepository.clearTokenInfo(item.getPhoneNumber().trim());
+
+                // Batch save cho LoggedOutUser
+                if (logoutList.size() == 1000) {
+                    loggedOutUserRepository.saveAll(logoutList);
+                    logoutList.clear();
+                }
+            }
+        }
+
+        // Save remaining records
+        if (!logoutList.isEmpty()) {
+            loggedOutUserRepository.saveAll(logoutList);
+        }
+
+        log.info("Completed logout process");
+    }
 
     public LoggedOutUserResponse logout(String authHeader) {
         LoggedOutUser savedLOU;
