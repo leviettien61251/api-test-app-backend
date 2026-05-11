@@ -29,8 +29,8 @@ public class WardTest {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "status", nullable = false)
-    private String status = "open";
+    @Column(name = "ward_status", nullable = false)
+    private String wardStatus = "open";
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

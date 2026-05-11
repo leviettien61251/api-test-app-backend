@@ -5,12 +5,15 @@ import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
 import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
+import com.example.apitestappbackend.models.SignupNotYetLogin;
 import com.example.apitestappbackend.models.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
 import com.example.apitestappbackend.util.JwtUtil;
+import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +87,18 @@ public class LoggedInUsersService {
     }
 
     private boolean isNewUser(String phoneNumber) {
-        return userTestRepository.existsByPhoneNumber(phoneNumber);
+        return phoneNumber != null && userTestRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+    private boolean isPhoneNumberEven(String phoneNumber) {
+        return phoneNumber != null && phoneNumber.length() % 2 == 0;
+    }
+
+    public void generateLoginData(){
+        List<SignupNotYetLogin> signUpList = signupNotYetLoginRepository.findAll();
+        for (SignupNotYetLogin s : signUpList) {
+            System.out.println(s.getPhoneNumber() + " " + s.getPassword());
+        }
     }
 
     public LoginResponse login(LoginRequest request) {

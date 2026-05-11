@@ -6,6 +6,7 @@ import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.services.LoggedInUsersService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,14 @@ public class LoggedInUsersController {
         return loggedInUsersService.findAll();
     }
 
+    @PostMapping("generate-login-data")
+    public HttpEntity<String> generateLoginData() {
+        loggedInUsersService.generateLoginData();
+        return ResponseEntity.ok("Successfully generated and saved login records");
+    }
+
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    public HttpEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("Login request for phone: {}", request.getPhoneNumber());
         LoginResponse res = loggedInUsersService.login(request);
 

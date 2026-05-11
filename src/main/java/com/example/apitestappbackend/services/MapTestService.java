@@ -62,6 +62,17 @@ public class MapTestService {
                         .build();
             }
 
+            if (request.getScaleX().isNaN() || request.getScaleY().isNaN()) {
+                return MapTestResponse
+                        .builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message(ResponseCode.INVALID_VALUE.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+
             if (request.getImageUrl().isBlank()) {
                 return MapTestResponse
                         .builder()
@@ -73,7 +84,7 @@ public class MapTestService {
                         .build();
             }
 
-            if (!isImageURLValid(request.getImageUrl())) {
+            if (!isImageURLValid(request.getImageUrl().trim())) {
                 return MapTestResponse
                         .builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -84,16 +95,6 @@ public class MapTestService {
                         .build();
             }
 
-            if (request.getScaleX().isNaN() || request.getScaleY().isNaN()) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message(ResponseCode.INVALID_VALUE.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
 
             MapTest mt = new MapTest();
             mt.setBuildingCode(request.getBuildingCode().trim());

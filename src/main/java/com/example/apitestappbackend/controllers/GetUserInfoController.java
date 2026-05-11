@@ -3,6 +3,7 @@ package com.example.apitestappbackend.controllers;
 import com.example.apitestappbackend.DTO.GetUserInfo.GetUserInfoRequest;
 import com.example.apitestappbackend.DTO.GetUserInfo.GetUserInfoResponse;
 import com.example.apitestappbackend.services.GetUserInfoService;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ public class GetUserInfoController {
     }
 
     @PostMapping("/get-user-info")
-    public ResponseEntity<GetUserInfoResponse> getUserInfo(@RequestBody GetUserInfoRequest request) {
+    public HttpEntity<GetUserInfoResponse> getUserInfo(@RequestBody GetUserInfoRequest request) {
 
         GetUserInfoResponse res = getUserInfoService.getUserInfo(request);
 
