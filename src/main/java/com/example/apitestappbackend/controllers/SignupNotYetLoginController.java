@@ -6,6 +6,7 @@ import com.example.apitestappbackend.models.SignupNotYetLogin;
 import com.example.apitestappbackend.services.SignupNotYetLoginService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class SignupNotYetLoginController {
     }
 
     @PostMapping("/generate10000")
-    public ResponseEntity<String> generate10000SignUpData(){
+    public HttpEntity<String> generate10000SignUpData(){
         try {
             signupNotYetLoginService.generate10000SignUpData();
             return ResponseEntity.ok("Successfully generated and saved 10000 signup records");
@@ -51,7 +52,7 @@ public class SignupNotYetLoginController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SignUpResponse> signup(@Valid @RequestBody SignUpRequest request) {
+    public HttpEntity<SignUpResponse> signup(@Valid @RequestBody SignUpRequest request) {
         log.info("Sign up request for phone: {}", request.getPhoneNumber());
         SignUpResponse res = signupNotYetLoginService.signUp(request);
 
