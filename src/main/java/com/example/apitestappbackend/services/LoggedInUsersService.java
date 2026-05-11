@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -97,43 +98,81 @@ public class LoggedInUsersService {
         List<SignupNotYetLogin> signUpList = signupNotYetLoginRepository.findAll();
         List<String> phones = new ArrayList<>();
         List<LoggedInUsers> loggedList = new ArrayList<>();
-
+        List<UserTest> newUsers = new ArrayList<>();
+        int batchSize = 1000;
 
         if (signUpList.isEmpty()) {
             log.info("No signup data found");
+            return;
         }
 
         for (SignupNotYetLogin s : signUpList) {
-            System.out.println(s.getPhoneNumber() + " " + s.getPassword());
-
             if (isPhoneNumberEven(s.getPhoneNumber().trim())) {
                 log.info("Phone number is even: {}", s.getPhoneNumber());
                 phones.add(s.getPhoneNumber());
-//                LoginRequest request = new LoginRequest(s.getPhoneNumber().trim(), s.getPassword().trim());
-//                login(request);
 
+                String phone = s.getPhoneNumber().trim();
+                String password = s.getPassword().trim();
+                String token = jwtUtil.generateToken(phone);
+                String refreshToken = jwtUtil.generateRefreshToken(phone);
+                Timestamp tokenExpiresAt = jwtUtil.getExpiration(token);
+
+                // Save to LoggedInUsers
                 LoggedInUsers l = new LoggedInUsers();
-                l.setPhoneNumber(s.getPhoneNumber().trim());
-                l.setPassword(s.getPassword().trim());
+                l.setPhoneNumber(phone);
+                l.setPassword(password);
                 l.setLoginStatus("success");
-                l.setToken(jwtUtil.generateToken(s.getPhoneNumber().trim()));
-                l.setRefreshToken(jwtUtil.generateRefreshToken(s.getPhoneNumber().trim()));
-                l.setTokenExpiresAt(jwtUtil.getExpiration(l.getToken()));
+                l.setToken(token);
+                l.setRefreshToken(refreshToken);
+                l.setTokenExpiresAt(tokenExpiresAt);
                 l.setUsedInTest(false);
                 l.setCode(ResponseCode.SUCCESS.getCode());
                 l.setMessage(ResponseCode.SUCCESS.getMessage());
-
                 loggedList.add(l);
-                if (phones.size() == 1000) {
-                    log.info("Saving {} records", phones.size());
-                    loggedInUsersRepository.saveAll(loggedList);
+
+                // Check and update/create UserTest
+                Optional<UserTest> existingUser = userTestRepository.findByPhoneNumber(phone);
+                if (existingUser.isPresent()) {
+                    // Update only token info for existing user
+                    userTestRepository.updateTokenInfo(phone, token, refreshToken, tokenExpiresAt);
+                } else {
+                    // Create new user
+                    UserTest ut = new UserTest();
+                    ut.setPhoneNumber(phone);
+                    ut.setPassword(password);
+                    ut.setFullname(phone);
+                    ut.setAddress("");
+                    ut.setAvatar("");
+                    ut.setToken(token);
+                    ut.setRefreshToken(refreshToken);
+                    ut.setTokenExpiresAt(tokenExpiresAt);
+                    newUsers.add(ut);
+                }
+
+                // Batch save
+                if (phones.size() >= batchSize) {
+                    saveBatch(loggedList, newUsers);
                     phones.clear();
                 }
             }
-
         }
-        log.info("Completed saving records");
 
+        // Save remaining records
+        if (!phones.isEmpty()) {
+            saveBatch(loggedList, newUsers);
+        }
+
+        log.info("Completed saving records");
+    }
+
+    private void saveBatch(List<LoggedInUsers> loggedList, List<UserTest> newUsers) {
+        log.info("Saving {} records", loggedList.size());
+        loggedInUsersRepository.saveAll(loggedList);
+        if (!newUsers.isEmpty()) {
+            userTestRepository.saveAll(newUsers);
+        }
+        loggedList.clear();
+        newUsers.clear();
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -250,6 +289,7 @@ public class LoggedInUsersService {
                         .orElseThrow(
                                 () -> new IllegalArgumentException("User with phone number: " + savedL.getPhoneNumber() + "does not exist!"));
                 //gán token mới
+                utOld.setPhoneNumber(l.getPhoneNumber());
                 utOld.setToken(l.getToken());
                 utOld.setRefreshToken(l.getRefreshToken());
                 utOld.setTokenExpiresAt(l.getTokenExpiresAt());

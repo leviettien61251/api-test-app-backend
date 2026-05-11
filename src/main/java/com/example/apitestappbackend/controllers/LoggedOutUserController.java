@@ -19,6 +19,14 @@ public class LoggedOutUserController {
         this.loggedOutUserService = loggedOutUserService;
     }
 
+    @PostMapping("/test-logout-data")
+    public HttpEntity<String> generateLogoutData() {
+        loggedOutUserService.testLogoutData();
+
+        return ResponseEntity.ok("Successfully generated and saved logout records");
+    }
+
+
     @PostMapping("/logout")
     public HttpEntity<LoggedOutUserResponse> logout(HttpServletRequest header) {
 
