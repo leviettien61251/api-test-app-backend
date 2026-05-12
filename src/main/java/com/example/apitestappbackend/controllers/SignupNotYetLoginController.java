@@ -35,7 +35,7 @@ public class SignupNotYetLoginController {
     }
 
     @PostMapping("/generate10000")
-    public HttpEntity<String> generate10000SignUpData(){
+    public HttpEntity<String> generate10000SignUpData() {
         try {
             signupNotYetLoginService.generate10000SignUpData();
             return ResponseEntity.ok("Successfully generated and saved 10000 signup records");

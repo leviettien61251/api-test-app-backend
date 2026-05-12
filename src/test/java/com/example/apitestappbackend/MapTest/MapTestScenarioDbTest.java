@@ -68,7 +68,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Response validation with code and message comparison
         assertNotNull(response, "Response should not be null");
@@ -86,7 +86,7 @@ public class MapTestScenarioDbTest {
 
         // Verify record is saved in database
         assertTrue(mapTestRepository.findAll().stream()
-                .anyMatch(m -> m.getBuildingCode().equals(VALID_BUILDING_CODE)),
+                        .anyMatch(m -> m.getBuildingCode().equals(VALID_BUILDING_CODE)),
                 "Record should be saved in maps_test table");
     }
 
@@ -103,7 +103,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code and message with ResponseCode enum
         assertNotNull(response, "Response should not be null");
@@ -130,7 +130,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code and message
         assertNotNull(response, "Response should not be null");
@@ -156,7 +156,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code and message
         assertNotNull(response, "Response should not be null");
@@ -182,7 +182,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code (should be INVALID_VALUE)
         assertNotNull(response, "Response should not be null");
@@ -194,9 +194,6 @@ public class MapTestScenarioDbTest {
         // Verify no record is saved
         assertTrue(mapTestRepository.findAll().isEmpty(), "No record should be saved for invalid image URL");
     }
-
-
-
 
 
     @Test
@@ -212,7 +209,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code and message
         assertNotNull(response, "Response should not be null");
@@ -238,7 +235,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code and message
         assertNotNull(response, "Response should not be null");
@@ -264,7 +261,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Response validation
         assertNotNull(response, "Response should not be null");
@@ -277,7 +274,7 @@ public class MapTestScenarioDbTest {
 
         // Verify record is saved with trimmed values
         assertTrue(mapTestRepository.findAll().stream()
-                .anyMatch(m -> m.getBuildingCode().equals(VALID_BUILDING_CODE)),
+                        .anyMatch(m -> m.getBuildingCode().equals(VALID_BUILDING_CODE)),
                 "Record should be saved with trimmed building code");
     }
 
@@ -294,14 +291,14 @@ public class MapTestScenarioDbTest {
         );
 
         // Act - First map test
-        MapTestResponse response1 = mapTestService.mapTest(request1);
+        MapTestResponse response1 = mapTestService.insertMapTest(request1);
 
         // Assert - First response
         assertEquals("success", response1.getStatus());
         assertEquals(ResponseCode.SUCCESS.getCode(), response1.getCode());
         assertEquals(ResponseCode.SUCCESS.getMessage(), response1.getMessage());
         assertNotNull(response1.getData());
-        String firstId = response1.getData().getId();
+        Integer firstId = response1.getData().getId();
 
         // Arrange - Second request
         MapTestRequest request2 = new MapTestRequest(
@@ -313,14 +310,14 @@ public class MapTestScenarioDbTest {
         );
 
         // Act - Second map test
-        MapTestResponse response2 = mapTestService.mapTest(request2);
+        MapTestResponse response2 = mapTestService.insertMapTest(request2);
 
         // Assert - Second response
         assertEquals("success", response2.getStatus());
         assertEquals(ResponseCode.SUCCESS.getCode(), response2.getCode());
         assertEquals(ResponseCode.SUCCESS.getMessage(), response2.getMessage());
         assertNotNull(response2.getData());
-        String secondId = response2.getData().getId();
+        Integer secondId = response2.getData().getId();
 
         // Verify both records are saved in database with correct code and message
         assertNotEquals(firstId, secondId, "IDs should be different");
@@ -344,7 +341,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code and message
         assertNotNull(response, "Response should not be null");
@@ -374,7 +371,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert - Compare response code and message (should fail on first validation - building code)
         assertNotNull(response, "Response should not be null");
@@ -400,7 +397,7 @@ public class MapTestScenarioDbTest {
         );
 
         // Act
-        MapTestResponse response = mapTestService.mapTest(request);
+        MapTestResponse response = mapTestService.insertMapTest(request);
 
         // Assert response
         assertEquals(ResponseCode.SUCCESS.getCode(), response.getCode());
