@@ -1,15 +1,11 @@
 package com.example.apitestappbackend.models;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
 
@@ -20,11 +16,11 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class WardTest {
     @Id
-    @UuidGenerator
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Column(name = "map_node_id", nullable = false)
-    private String mapNodeId;
+    private Integer mapNodeId;
 
     @Column(name = "name", nullable = false)
     private String name;

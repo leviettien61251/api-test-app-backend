@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MapTestData {
-    private String id;
+    private Integer id;
 
     private String buildingCode;
 

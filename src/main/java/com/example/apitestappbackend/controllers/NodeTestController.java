@@ -1,8 +1,8 @@
 package com.example.apitestappbackend.controllers;
 
-import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
-import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
-import com.example.apitestappbackend.services.MapTestService;
+import com.example.apitestappbackend.DTO.NodeTest.NodeRequest;
+import com.example.apitestappbackend.DTO.NodeTest.NodeResponse;
+import com.example.apitestappbackend.services.NodeTestService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1")
-public class MapTestController {
-    private final MapTestService mapTestService;
+public class NodeTestController {
+    private final NodeTestService nodeTestService;
 
-    public MapTestController(MapTestService mapTestService) {
-        this.mapTestService = mapTestService;
+    public NodeTestController(NodeTestService nodeTestService) {
+        this.nodeTestService = nodeTestService;
     }
 
-    @PostMapping("/insert-map-test")
-    public HttpEntity<MapTestResponse> insertMapTest(@RequestBody MapTestRequest request) {
-        MapTestResponse res = mapTestService.insertMapTest(request);
+    @PostMapping("/insert-node-test")
+    public HttpEntity<NodeResponse> getNodeTest(@RequestBody NodeRequest request) {
+        NodeResponse res = nodeTestService.insertNodeTest(request);
 
         HttpStatus status = res.getStatus().equals("success")
                 ? HttpStatus.CREATED

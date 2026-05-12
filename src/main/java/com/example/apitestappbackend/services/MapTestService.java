@@ -25,7 +25,7 @@ public class MapTestService {
         return url != null && url.matches(regex);
     }
 
-    public MapTestResponse mapTest(MapTestRequest request) {
+    public MapTestResponse insertMapTest(MapTestRequest request) {
         MapTest savedMt;
 
         try {
@@ -94,7 +94,6 @@ public class MapTestService {
                         .usedInTest(false)
                         .build();
             }
-
 
             MapTest mt = new MapTest();
             mt.setBuildingCode(request.getBuildingCode().trim());

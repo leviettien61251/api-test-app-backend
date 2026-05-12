@@ -1,10 +1,7 @@
 package com.example.apitestappbackend.models;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,8 +17,8 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class MapTest {
     @Id
-    @UuidGenerator
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Column(name = "building_code", length = 50, nullable = false)
     private String buildingCode;
