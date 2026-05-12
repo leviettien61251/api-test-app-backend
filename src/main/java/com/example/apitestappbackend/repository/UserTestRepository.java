@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,6 +22,11 @@ public interface UserTestRepository extends JpaRepository<UserTest, String> {
 
     Optional<UserTest> findByToken(String token);
 
+    @Modifying
+    @Transactional
+    @Query("SELECT u FROM UserTest u WHERE u.token = ''")
+    List<UserTest> findAllWhereTokenIsEmpty();
+    
     @Modifying
     @Transactional
     @Query("UPDATE UserTest u SET u.token = :token, u.refreshToken = :refreshToken, u.tokenExpiresAt = :tokenExpiresAt WHERE u.phoneNumber = :phoneNumber")

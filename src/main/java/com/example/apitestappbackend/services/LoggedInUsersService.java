@@ -5,9 +5,11 @@ import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
 import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
+import com.example.apitestappbackend.models.LoggedOutUser;
 import com.example.apitestappbackend.models.SignupNotYetLogin;
 import com.example.apitestappbackend.models.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
+import com.example.apitestappbackend.repository.LoggedOutUserRepository;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
 import com.example.apitestappbackend.util.JwtUtil;
@@ -27,15 +29,18 @@ public class LoggedInUsersService {
     private JwtUtil jwtUtil;
 
     private final LoggedInUsersRepository loggedInUsersRepository;
+    private final LoggedOutUserRepository loggedOutUserRepository;
     private final SignupNotYetLoginRepository signupNotYetLoginRepository;
     private final UserTestRepository userTestRepository;
 
     public LoggedInUsersService(LoggedInUsersRepository loggedInUsersRepository,
                                 SignupNotYetLoginRepository signupNotYetLoginRepository,
-                                UserTestRepository userTestRepository) {
+                                UserTestRepository userTestRepository,
+                                LoggedOutUserRepository loggedOutUserRepository) {
         this.loggedInUsersRepository = loggedInUsersRepository;
         this.signupNotYetLoginRepository = signupNotYetLoginRepository;
         this.userTestRepository = userTestRepository;
+        this.loggedOutUserRepository = loggedOutUserRepository;
     }
 
     public List<LoggedInUsers> findAll() {
@@ -92,6 +97,10 @@ public class LoggedInUsersService {
 
     private boolean isPhoneNumberEven(String phoneNumber) {
         return phoneNumber != null && Integer.parseInt(phoneNumber) % 2 == 0;
+    }
+
+    private boolean isPhoneNumberEvenAndDivisionBy16(String phoneNumber) {
+        return phoneNumber != null && Integer.parseInt(phoneNumber) % 16 == 0;
     }
 
     public void generateLoginData() {
@@ -173,6 +182,79 @@ public class LoggedInUsersService {
         }
         loggedList.clear();
         newUsers.clear();
+    }
+
+    private void saveBatchRelogin(List<LoggedInUsers> loggedList, List<UserTest> updateList) {
+        log.info("Saving {} logged users and updating {} users", loggedList.size(), updateList.size());
+
+        if (!loggedList.isEmpty()) {
+            loggedInUsersRepository.saveAll(loggedList);
+            loggedList.clear();
+        }
+
+        if (!updateList.isEmpty()) {
+            userTestRepository.saveAll(updateList); // saveAll sẽ tự động update nếu có ID
+            updateList.clear();
+        }
+    }
+
+    public void reloginEvenPhoneNumbersAndDivisionBy16() {
+        // Lấy thông tin user đã logout (token trống hoặc null)
+        List<UserTest> loggedOutList = userTestRepository.findAllWhereTokenIsEmpty();
+        List<LoggedInUsers> loggedList = new ArrayList<>();
+        List<UserTest> updateList = new ArrayList<>();
+        int batchSize = 1000;
+        int processedCount = 0;
+
+        if (loggedOutList.isEmpty()) {
+            log.info("No logged out users found");
+            return;
+        }
+
+        log.info("Found {} logged out users to process", loggedOutList.size());
+
+        for (UserTest user : loggedOutList) {
+            String phoneNumber = user.getPhoneNumber();
+
+            if (phoneNumber != null && isPhoneNumberEvenAndDivisionBy16(phoneNumber.trim())) {
+                String phone = phoneNumber.trim();
+                String token = jwtUtil.generateToken(phone);
+                String refreshToken = jwtUtil.generateRefreshToken(phone);
+                Timestamp tokenExpiresAt = jwtUtil.getExpiration(token);
+
+                // 2. Lưu vào LoggedInUsers
+                LoggedInUsers loggedInUser = new LoggedInUsers();
+                loggedInUser.setPhoneNumber(phone);
+                loggedInUser.setPassword("111111");
+                loggedInUser.setLoginStatus("success");
+                loggedInUser.setToken(token);
+                loggedInUser.setRefreshToken(refreshToken);
+                loggedInUser.setTokenExpiresAt(tokenExpiresAt);
+                loggedInUser.setUsedInTest(false);
+                loggedInUser.setCode(ResponseCode.SUCCESS.getCode());
+                loggedInUser.setMessage(ResponseCode.SUCCESS.getMessage());
+                loggedList.add(loggedInUser);
+
+                // 3. Cập nhật token cho UserTest hiện tại
+                user.setToken(token);
+                user.setRefreshToken(refreshToken);
+                user.setTokenExpiresAt(tokenExpiresAt);
+                updateList.add(user);
+
+                processedCount++;
+
+                if (processedCount % batchSize == 0) {
+                    saveBatch(loggedList, updateList);
+                    log.info("Processed {} records", processedCount);
+                }
+            }
+        }
+
+        if (!loggedList.isEmpty() || !updateList.isEmpty()) {
+            saveBatchRelogin(loggedList, updateList);
+        }
+
+        log.info("Completed saving records. Total processed: {}", processedCount);
     }
 
     public LoginResponse login(LoginRequest request) {

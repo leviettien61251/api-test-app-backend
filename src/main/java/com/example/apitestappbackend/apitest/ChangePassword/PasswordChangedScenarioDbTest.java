@@ -4,10 +4,7 @@ import com.example.apitestappbackend.DTO.PasswordChangedTest.PasswordChangedRequ
 import com.example.apitestappbackend.DTO.PasswordChangedTest.PasswordChangedResponse;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.models.PasswordChanged;
-import com.example.apitestappbackend.repository.LoggedInUsersRepository;
-import com.example.apitestappbackend.repository.PasswordChangedRepository;
-import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
-import com.example.apitestappbackend.repository.UserTestRepository;
+import com.example.apitestappbackend.repository.*;
 import com.example.apitestappbackend.services.LoggedInUsersService;
 import com.example.apitestappbackend.services.PasswordChangedService;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +42,9 @@ public class PasswordChangedScenarioDbTest {
     private SignupNotYetLoginRepository signupNotYetLoginRepository;
 
     @Autowired
+    private LoggedOutUserRepository loggedOutUserRepository;
+
+    @Autowired
     private UserTestRepository userTestRepository;
 
     private PasswordChangedService passwordChangedService;
@@ -56,7 +56,7 @@ public class PasswordChangedScenarioDbTest {
         loggedInUsersRepository.deleteAll();
         signupNotYetLoginRepository.deleteAll();
 
-        loggedInUsersService = new LoggedInUsersService(loggedInUsersRepository, signupNotYetLoginRepository, userTestRepository);
+        loggedInUsersService = new LoggedInUsersService(loggedInUsersRepository, signupNotYetLoginRepository, userTestRepository, loggedOutUserRepository);
         passwordChangedService = new PasswordChangedService(passwordChangedRepository, loggedInUsersRepository, loggedInUsersService);
     }
 

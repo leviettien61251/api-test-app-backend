@@ -28,6 +28,12 @@ public class LoggedInUsersController {
         return loggedInUsersService.findAll();
     }
 
+    @PostMapping("generate-relogin-data")
+    public HttpEntity<String> generateReloginData() {
+        loggedInUsersService.reloginEvenPhoneNumbersAndDivisionBy16();
+        return ResponseEntity.ok("Successfully generated and saved login records");
+    }
+
     @PostMapping("generate-login-data")
     public HttpEntity<String> generateLoginData() {
         loggedInUsersService.generateLoginData();
