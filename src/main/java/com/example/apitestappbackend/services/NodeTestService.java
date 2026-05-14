@@ -76,11 +76,11 @@ public class NodeTestService {
             nt.setYCoordinate(Double.parseDouble(request.getYCoordinate().toString()));
             nt.setType(request.getType().trim());
             nt.setIsPassable(Boolean.parseBoolean(request.getIsPassable().toString()));
-//            nt.setTimeStamp(new Timestamp(System.currentTimeMillis()));
-//            nt.setStatus("success");
+            nt.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+            nt.setStatus("success");
             nt.setCode(ResponseCode.SUCCESS.getCode());
             nt.setMessage(ResponseCode.SUCCESS.getMessage());
-//            nt.setUsedInTest(false);
+            nt.setUsedInTest(false);
             savedNt = nodeTestRepository.save(nt);
 
 
@@ -98,6 +98,7 @@ public class NodeTestService {
                             savedNt.getType(),
                             savedNt.getIsPassable()
                     ))
+                    .createdAt(new Timestamp(System.currentTimeMillis()))
                     .build();
         } catch (Exception e) {
             log.error("Error when insert node test: {}", e.getMessage());
@@ -107,6 +108,7 @@ public class NodeTestService {
                     .code(ResponseCode.INTERNAL_SERVER_ERROR.getCode())
                     .message(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
                     .usedInTest(false)
+                    .createdAt(new Timestamp(System.currentTimeMillis()))
                     .build();
         }
 
