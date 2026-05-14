@@ -31,6 +31,8 @@ public enum ResponseCode {
     NODE_NOT_FOUND("4002", "Node not found"),
     EDGE_NOT_FOUND("4003", "Edge not found"),
     INVALID_COORDINATE("4004", "Invalid coordinate"),
+    BUILDING_NOT_FOUND("4005", "Building not found"),
+    BUILDING_EXISTS("4006", "Building already exists"),
 
     // ROUTE
     INTERNAL_SERVER_ERROR("5000", "Internal Server Error"),

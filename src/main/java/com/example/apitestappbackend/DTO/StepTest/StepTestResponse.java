@@ -1,5 +1,4 @@
-package com.example.apitestappbackend.DTO.MapTest;
-
+package com.example.apitestappbackend.DTO.StepTest;
 
 import com.example.apitestappbackend.DTO.Response;
 import lombok.AllArgsConstructor;
@@ -12,10 +11,11 @@ import java.util.List;
 
 @Data
 @SuperBuilder
-@NoArgsConstructor
 @AllArgsConstructor
-public class MapTestResponse extends Response {
+@NoArgsConstructor
+public class StepTestResponse extends Response {
     private List<?> data;
-    private Timestamp timestamp;
     private Boolean usedInTest;
+    private Timestamp timestamp;
+
 }
