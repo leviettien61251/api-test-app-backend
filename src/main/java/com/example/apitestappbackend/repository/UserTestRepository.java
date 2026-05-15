@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,8 @@ public interface UserTestRepository extends JpaRepository<UserTest, String> {
     boolean existsByToken(String token);
 
     Optional<UserTest> findByToken(String token);
+
+    void deleteByPhoneNumberIn(Collection<String> phoneNumbers);
 
     @Modifying
     @Transactional

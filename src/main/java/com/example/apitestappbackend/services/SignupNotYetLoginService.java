@@ -42,6 +42,10 @@ public class SignupNotYetLoginService {
         signupNotYetLoginRepository.deleteById(id);
     }
 
+    public String cleanSignUpData() {
+        signupNotYetLoginRepository.deleteAll();
+        return "Successfully cleaned signup data";
+    }
 
     private boolean isPhoneNumberValid(String phoneNumber) {
         String regexPhoneNumber = "^(0|\\+84)(3[2-9]|5[6-9]|7[0-9]|8[1-9]|9[0-9])\\d{7}$";

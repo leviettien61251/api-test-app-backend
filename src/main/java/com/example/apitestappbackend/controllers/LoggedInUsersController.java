@@ -53,4 +53,9 @@ public class LoggedInUsersController {
                 .status(status)
                 .body(res);
     }
+
+    @DeleteMapping("/login/clean")
+    public HttpEntity<String> cleanLoginData(){
+        return ResponseEntity.ok(loggedInUsersService.cleanLoginData());
+    }
 }
