@@ -57,4 +57,19 @@ public class MapTestController {
                 .status(status)
                 .body(res);
     }
+
+    @DeleteMapping("/map/clean")
+    public HttpEntity<String> cleanMapData() {
+        return ResponseEntity.ok(mapTestService.cleanMapData());
+    }
+
+    @DeleteMapping("/map/node/clean")
+    public HttpEntity<String> cleanNodeData() {
+        return ResponseEntity.ok(mapTestService.cleanNodeData());
+    }
+
+    @DeleteMapping("/map/step/clean")
+    public HttpEntity<String> cleanStepData() {
+        return ResponseEntity.ok(mapTestService.cleanStepData());
+    }
 }

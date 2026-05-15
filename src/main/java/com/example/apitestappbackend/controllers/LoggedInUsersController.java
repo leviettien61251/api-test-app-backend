@@ -4,6 +4,7 @@ import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
 import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.services.LoggedInUsersService;
+import com.example.apitestappbackend.services.UserTestService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -18,9 +19,11 @@ import java.util.List;
 @Slf4j
 public class LoggedInUsersController {
     private final LoggedInUsersService loggedInUsersService;
+    private final UserTestService userTestService;
 
-    public LoggedInUsersController(LoggedInUsersService loggedInUsersService) {
+    public LoggedInUsersController(LoggedInUsersService loggedInUsersService, UserTestService userTestService) {
         this.loggedInUsersService = loggedInUsersService;
+        this.userTestService = userTestService;
     }
 
     @GetMapping("/logged-in-users")
@@ -55,7 +58,12 @@ public class LoggedInUsersController {
     }
 
     @DeleteMapping("/login/clean")
-    public HttpEntity<String> cleanLoginData(){
+    public HttpEntity<String> cleanLoginData() {
         return ResponseEntity.ok(loggedInUsersService.cleanLoginData());
+    }
+
+    @DeleteMapping("/user-test/clean")
+    public HttpEntity<String> cleanUserTestData() {
+        return ResponseEntity.ok(userTestService.cleanUserTestData());
     }
 }

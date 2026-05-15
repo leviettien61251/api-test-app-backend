@@ -38,6 +38,21 @@ public class MapTestService {
         return url != null && url.matches(regex);
     }
 
+    public String cleanMapData() {
+        mapTestRepository.deleteAll();
+        return "Dọn dẹp dữ liệu Map thành công";
+    }
+
+    public String cleanNodeData() {
+        nodeTestRepository.deleteAll();
+        return "Dọn dẹp dữ liệu Node thành công";
+    }
+
+    public String cleanStepData() {
+        stepTestRepository.deleteAll();
+        return "Dọn dẹp dữ liệu Step thành công";
+    }
+
     public MapTestResponse insertMapTest(MapTestRequest request) {
         MapTest savedMt;
         List<MapTestData> mapTests = new ArrayList<>();
