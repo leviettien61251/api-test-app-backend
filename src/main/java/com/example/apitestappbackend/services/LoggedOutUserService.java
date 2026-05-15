@@ -29,6 +29,11 @@ public class LoggedOutUserService {
         return loggedOutUserRepository.findAll();
     }
 
+    public String cleanLogoutData() {
+        loggedOutUserRepository.deleteAll();
+        return "Successfully cleaned logout data";
+    }
+
     private boolean isTokenValid(String token) {
         boolean exists = userTestRepository.existsByToken(token);
         boolean invalidated = loggedOutUserRepository.existsByInvalidatedToken(token);
