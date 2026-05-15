@@ -30,7 +30,7 @@ public class LoggedOutUserService {
     }
 
     public String cleanLogoutData() {
-        loggedOutUserRepository.deleteAll();
+        loggedOutUserRepository.deleteAllInBatch();
         return "Successfully cleaned logout data";
     }
 

@@ -39,17 +39,17 @@ public class MapTestService {
     }
 
     public String cleanMapData() {
-        mapTestRepository.deleteAll();
+        mapTestRepository.deleteAllInBatch();
         return "Dọn dẹp dữ liệu Map thành công";
     }
 
     public String cleanNodeData() {
-        nodeTestRepository.deleteAll();
+        nodeTestRepository.deleteAllInBatch();
         return "Dọn dẹp dữ liệu Node thành công";
     }
 
     public String cleanStepData() {
-        stepTestRepository.deleteAll();
+        stepTestRepository.deleteAllInBatch();
         return "Dọn dẹp dữ liệu Step thành công";
     }
 
@@ -183,6 +183,39 @@ public class MapTestService {
         StepTest savedSt;
         List<StepTestData> stepTests = new ArrayList<>();
         try {
+            if (request.getMapId() == null) {
+                return StepTestResponse
+                        .builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_BODY.getCode())
+                        .message("Map id null")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            if (request.getStartNodeId() == null) {
+                return StepTestResponse
+                        .builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_BODY.getCode())
+                        .message("Start Node id null")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            if (request.getEndNodeId() == null) {
+                return StepTestResponse
+                        .builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_BODY.getCode())
+                        .message("End Node id null")
+                        .usedInTest(false)
+                        .build();
+            }
+
             if (request.getMapId().toString().isBlank()) {
                 return StepTestResponse
                         .builder()

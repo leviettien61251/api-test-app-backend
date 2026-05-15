@@ -28,7 +28,15 @@ public class NodeTestService {
         NodeTest savedNt;
 
         try {
-
+            if (request.getMapId() == null) {
+                return NodeResponse.builder()
+                        .status("fail")
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message(ResponseCode.MISSING_PARAM.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
             if (request.getXCoordinate().toString().isBlank() || request.getYCoordinate().toString().isBlank()) {
                 return NodeResponse.builder()
                         .status("fail")
@@ -66,9 +74,16 @@ public class NodeTestService {
                         .build();
             }
 
-            MapTest mt = mapTestRepository.findById(request.getMapId()).orElseThrow(
-                    () -> new RuntimeException("Map not found")
-            );
+            MapTest mt = mapTestRepository.findById(request.getMapId()).orElse(null);
+            if (mt == null) {
+                return NodeResponse.builder()
+                        .status("fail")
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.FLOOR_NOT_FOUND.getCode())
+                        .message(ResponseCode.FLOOR_NOT_FOUND.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
 
             NodeTest nt = new NodeTest();
             nt.setMapTest(mt);
