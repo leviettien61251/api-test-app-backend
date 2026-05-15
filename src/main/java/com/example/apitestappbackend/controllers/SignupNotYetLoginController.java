@@ -73,4 +73,9 @@ public class SignupNotYetLoginController {
     public void delete(@PathVariable String id) {
         signupNotYetLoginService.deleteById(id);
     }
+
+    @DeleteMapping("/signup/clean")
+    public HttpEntity<String> cleanSignUpData() {
+        return ResponseEntity.ok(signupNotYetLoginService.cleanSignUpData());
+    }
 }

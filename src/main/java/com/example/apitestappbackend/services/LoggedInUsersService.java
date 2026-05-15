@@ -5,7 +5,6 @@ import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
 import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
-import com.example.apitestappbackend.models.LoggedOutUser;
 import com.example.apitestappbackend.models.SignupNotYetLogin;
 import com.example.apitestappbackend.models.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
@@ -16,11 +15,14 @@ import com.example.apitestappbackend.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -63,6 +65,28 @@ public class LoggedInUsersService {
         );
         savedU.setPhoneNumber(u.getPhoneNumber());
         return loggedInUsersRepository.save(savedU);
+    }
+
+    @Transactional
+    public String cleanLoginData() {
+        List<LoggedInUsers> loggedInUsers = loggedInUsersRepository.findAll();
+        if (loggedInUsers.isEmpty()) {
+            return "No login data to clean";
+        }
+
+        Set<String> phoneNumbers = new LinkedHashSet<>();
+        for (LoggedInUsers loggedInUser : loggedInUsers) {
+            if (loggedInUser.getPhoneNumber() != null && !loggedInUser.getPhoneNumber().isBlank()) {
+                phoneNumbers.add(loggedInUser.getPhoneNumber().trim());
+            }
+        }
+
+        if (!phoneNumbers.isEmpty()) {
+            userTestRepository.deleteByPhoneNumberIn(phoneNumbers);
+        }
+
+        loggedInUsersRepository.deleteAllInBatch();
+        return "Successfully cleaned login data for " + phoneNumbers.size() + " user(s)";
     }
 
     public LoggedInUsers findUserByPhoneNumber(String phoneNumber) {
