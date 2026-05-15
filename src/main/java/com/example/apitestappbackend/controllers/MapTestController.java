@@ -32,7 +32,7 @@ public class MapTestController {
                 .body(res);
     }
 
-    @PostMapping("/map/step")
+    @PostMapping("/map/insert-step")
     public HttpEntity<StepTestResponse> insertStep(@RequestBody StepTestRequest request) {
         StepTestResponse res = mapTestService.insertStep(request);
 

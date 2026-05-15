@@ -14,7 +14,7 @@ public class UserTestService {
     }
 
     public String cleanUserTestData() {
-        userTestRepository.deleteAll();
+        userTestRepository.deleteAllInBatch();
         return "Dọn dẹp dữ liệu UserTest thành công";
     }
 }

@@ -43,7 +43,7 @@ public class SignupNotYetLoginService {
     }
 
     public String cleanSignUpData() {
-        signupNotYetLoginRepository.deleteAll();
+        signupNotYetLoginRepository.deleteAllInBatch();
         return "Successfully cleaned signup data";
     }
 
