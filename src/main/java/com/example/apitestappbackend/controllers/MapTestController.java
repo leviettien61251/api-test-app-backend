@@ -19,6 +19,32 @@ public class MapTestController {
         this.mapTestService = mapTestService;
     }
 
+    @GetMapping("/map/floors")
+    public HttpEntity<MapTestResponse> getFloors(@RequestParam(value = "building_code", required = false) String buildingCode) {
+        MapTestResponse res = mapTestService.getFloors(buildingCode);
+
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.OK
+                : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
+    @PostMapping("/generateMapDataBuildingAB_5")
+    public HttpEntity<MapTestResponse> generateMapDataBuildingAB_5() {
+        MapTestResponse res = mapTestService.generateMapTestDataBuildingAAndB_5();
+
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
     @PostMapping("/insert-map-test")
     public HttpEntity<MapTestResponse> insertMapTest(@RequestBody MapTestRequest request) {
         MapTestResponse res = mapTestService.insertMapTest(request);
@@ -45,18 +71,6 @@ public class MapTestController {
                 .body(res);
     }
 
-    @GetMapping("/map/floors")
-    public HttpEntity<MapTestResponse> getFloors(@RequestParam(value = "building_code", required = false) String buildingCode) {
-        MapTestResponse res = mapTestService.getFloors(buildingCode);
-
-        HttpStatus status = res.getStatus().equals("success")
-                ? HttpStatus.OK
-                : HttpStatus.BAD_REQUEST;
-
-        return ResponseEntity
-                .status(status)
-                .body(res);
-    }
 
     @DeleteMapping("/map/clean")
     public HttpEntity<String> cleanMapData() {

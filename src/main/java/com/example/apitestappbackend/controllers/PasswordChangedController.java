@@ -24,7 +24,7 @@ public class PasswordChangedController {
     }
 
     @GetMapping("/change-password")
-    public List<PasswordChanged> getAll(){
+    public List<PasswordChanged> getAll() {
         return passwordChangedService.findAll();
     }
 
@@ -39,5 +39,10 @@ public class PasswordChangedController {
         return ResponseEntity
                 .status(status)
                 .body(res);
+    }
+
+    @DeleteMapping("/change-password/clean")
+    public HttpEntity<String> cleanChangePasswordData() {
+        return ResponseEntity.ok(passwordChangedService.cleanChangePasswordData());
     }
 }
