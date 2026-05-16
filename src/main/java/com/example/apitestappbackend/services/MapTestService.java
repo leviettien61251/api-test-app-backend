@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -36,6 +37,118 @@ public class MapTestService {
     public boolean isImageURLValid(String url) {
         String regex = "^(https?:\\/\\/)?([\\w-]+\\.)+[\\w-]+(\\/[\\w- .\\/?%&=]*)?\\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)(\\?.*)?$";
         return url != null && url.matches(regex);
+    }
+
+    public void generateMapNodeStepData() {
+        try {
+            // Create a sample map
+            MapTest mt = new MapTest();
+            mt.setBuildingCode("B001");
+            mt.setBuildingName("Building 1 - Floor 1");
+            mt.setImageUrl("https://example.com/map1.png");
+            mt.setScaleX(1.0);
+            mt.setScaleY(1.0);
+            mt.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+            mt.setCode(ResponseCode.SUCCESS.getCode());
+            mt.setMessage(ResponseCode.SUCCESS.getMessage());
+            mt.setUsedInTest(true);
+
+            MapTest savedMap = mapTestRepository.save(mt);
+
+            // Create sample nodes for the map
+            NodeTest n1 = new NodeTest();
+            n1.setMapTest(savedMap);
+            n1.setXCoordinate(10.0);
+            n1.setYCoordinate(20.0);
+            n1.setType("start");
+            n1.setIsPassable(true);
+            n1.setCode(ResponseCode.SUCCESS.getCode());
+            n1.setMessage(ResponseCode.SUCCESS.getMessage());
+
+            NodeTest n2 = new NodeTest();
+            n2.setMapTest(savedMap);
+            n2.setXCoordinate(15.0);
+            n2.setYCoordinate(25.0);
+            n2.setType("end");
+            n2.setIsPassable(true);
+            n2.setCode(ResponseCode.SUCCESS.getCode());
+            n2.setMessage(ResponseCode.SUCCESS.getMessage());
+
+            NodeTest savedN1 = nodeTestRepository.save(n1);
+            NodeTest savedN2 = nodeTestRepository.save(n2);
+
+            // Create a sample step connecting the two nodes
+            StepTest s1 = new StepTest();
+            s1.setMapTest(savedMap);
+            s1.setStartNodeId(savedN1);
+            s1.setEndNodeId(savedN2);
+            s1.setDistance(5.0);
+            s1.setDirection("north");
+            s1.setInstruction("Walk straight for 5 meters");
+            s1.setCode(ResponseCode.SUCCESS.getCode());
+            s1.setMessage(ResponseCode.SUCCESS.getMessage());
+            s1.setUsedInTest(true);
+
+            stepTestRepository.save(s1);
+
+            log.info("Seeded MapTest (id={}) with 2 nodes and 1 step", savedMap.getId());
+        } catch (Exception e) {
+            log.error("Error generating map test data: ", e);
+        }
+    }
+
+    public MapTestResponse generateMapTestDataBuildingAAndB_5() {
+        List<MapTest> mapTests = new ArrayList<>();
+
+        try {
+            for (int i = 1; i <= 5; i++) {
+                MapTest mt = new MapTest();
+                mt.setBuildingCode("A");
+                mt.setBuildingName("Tòa A - Tầng " + i);
+                mt.setImageUrl("https://example.com/a" + i + ".png");
+                mt.setScaleX(1.0);
+                mt.setScaleY(1.0);
+                mt.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+                mt.setCode(ResponseCode.SUCCESS.getCode());
+                mt.setMessage(ResponseCode.SUCCESS.getMessage());
+                mt.setUsedInTest(true);
+
+                mapTests.add(mt);
+            }
+            mapTestRepository.saveAll(mapTests);
+        } catch (Exception e) {
+            log.error("Error when generate map test data 5(A: ", e);
+        }
+        try {
+            for (int i = 1; i <= 5; i++) {
+                MapTest mt = new MapTest();
+                mt.setBuildingCode("B");
+                mt.setBuildingName("Tòa B - Tầng " + i);
+                mt.setImageUrl("https://example.com/a" + i + ".png");
+                mt.setScaleX(1.0);
+                mt.setScaleY(1.0);
+                mt.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+                mt.setCode(ResponseCode.SUCCESS.getCode());
+                mt.setMessage(ResponseCode.SUCCESS.getMessage());
+                mt.setUsedInTest(true);
+
+                mapTests.add(mt);
+            }
+            mapTestRepository.saveAll(mapTests);
+        } catch (Exception e) {
+            log.error("Error when generate map test data 5(B): ", e);
+        }
+
+        log.info("Thêm dữ liệu mồi thành công");
+        return MapTestResponse
+                .builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("success")
+                .code(ResponseCode.SUCCESS.getCode())
+                .message(ResponseCode.SUCCESS.getMessage())
+                .data(mapTests)
+                .usedInTest(true)
+                .build();
     }
 
     public String cleanMapData() {
@@ -350,16 +463,30 @@ public class MapTestService {
                 mapTests = mapTestRepository.findAll();
             }
 
+            if(Objects.equals(buildingCode, "")) {
+                mapTests = mapTestRepository.findAll();
+                return MapTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("success")
+                        .code(ResponseCode.SUCCESS.getCode())
+                        .message(ResponseCode.SUCCESS.getMessage())
+                        .data(mapTests)
+                        .usedInTest(false)
+                        .build();
+            }
             // Xử lý dữ liệu trả về
             if (mapTests.isEmpty()) {
                 return MapTestResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .status("success")
                         .code(ResponseCode.SUCCESS.getCode())
-                        .message("Không tìm thấy dữ liệu")
+                        .message(ResponseCode.SUCCESS.getMessage())
+                        .data(mapTests)
                         .usedInTest(false)
                         .build();
             }
+
+
 
             return MapTestResponse.builder()
                     .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -381,4 +508,5 @@ public class MapTestService {
                     .build();
         }
     }
+
 }

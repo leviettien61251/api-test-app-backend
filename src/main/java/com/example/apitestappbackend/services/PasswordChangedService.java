@@ -36,6 +36,11 @@ public class PasswordChangedService {
         // nếu phoneNumber này đã login thì sẽ có dữ liệu => true
     }
 
+    public String cleanChangePasswordData() {
+        passwordChangedRepository.deleteAllInBatch();
+        return "Dọn dẹp dữ liệu Change Password thành công";
+    }
+
     private boolean isOldPasswordCorrect(String phoneNumber, String oldPassword) {
         return phoneNumber != null && oldPassword != null && loggedInUsersRepository.existsByPhoneNumberAndPassword(phoneNumber, oldPassword);
     }
@@ -59,11 +64,20 @@ public class PasswordChangedService {
         LoggedInUsers needChangeP;
 
         try {
+            if (request.getPhoneNumber().isBlank()) {
+                return PasswordChangedResponse.builder()
+                        .status("fail")
+                        .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.MISSING_BODY.getCode())
+                        .message("Phonenumber bị để trống")
+                        .usedInTest(false)
+                        .build();
+            }
             if (request.getOldPassword() == null) {
                 return PasswordChangedResponse.builder()
                         .status("fail")
                         .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .code(ResponseCode.MISSING_BODY.getCode())
                         .message("Old password bị để trống")
                         .usedInTest(false)
                         .build();
@@ -72,7 +86,7 @@ public class PasswordChangedService {
                 return PasswordChangedResponse.builder()
                         .status("fail")
                         .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .code(ResponseCode.MISSING_BODY.getCode())
                         .message("New password bị để trống")
                         .usedInTest(false)
                         .build();
@@ -81,7 +95,7 @@ public class PasswordChangedService {
                 return PasswordChangedResponse.builder()
                         .status("fail")
                         .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .code(ResponseCode.MISSING_BODY.getCode())
                         .message("Old password bị để trống")
                         .usedInTest(false)
                         .build();
@@ -90,7 +104,7 @@ public class PasswordChangedService {
                 return PasswordChangedResponse.builder()
                         .status("fail")
                         .passwordChangedTimestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .code(ResponseCode.MISSING_BODY.getCode())
                         .message("New password bị để trống")
                         .usedInTest(false)
                         .build();

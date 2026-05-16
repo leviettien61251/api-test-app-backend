@@ -10,6 +10,7 @@ public enum ResponseCode {
     INVALID_VALUE("2003", "Invalid parameter value"),
     METHOD_NOT_ALLOWED("2004", "Method not allowed"),
     INVALID_BODY("2005", "Request body invalid"),
+    MISSING_BODY("2006", "Request body missing"),
 
     // AUTH
     TOKEN_INVALID("3001", "Token is invalid"),
