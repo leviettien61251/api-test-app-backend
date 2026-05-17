@@ -3,6 +3,7 @@ package com.example.apitestappbackend.services;
 import com.example.apitestappbackend.DTO.MapTest.MapTestData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
 import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
+import com.example.apitestappbackend.DTO.StepTest.StepEdgeData;
 import com.example.apitestappbackend.DTO.StepTest.StepTestData;
 import com.example.apitestappbackend.DTO.StepTest.StepTestRequest;
 import com.example.apitestappbackend.DTO.StepTest.StepTestResponse;
@@ -437,11 +438,93 @@ public class MapTestService {
         }
     }
 
-    public StepTestResponse getSteps() {
+    public StepTestResponse getEdges() {
+        return StepTestResponse.builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(ResponseCode.MISSING_PARAM.getCode())
+                .message("Thiếu floor_id")
+                .usedInTest(false)
+                .build();
+    }
+
+    public StepTestResponse getEdges(List<String> floorIds) {
         try {
-            return null;
+            if (floorIds == null || floorIds.isEmpty() || floorIds.size() > 1 || floorIds.get(0) == null) {
+                return StepTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu floor_id")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            String floorIdStr = floorIds.get(0);
+            if (!floorIdStr.matches("^\\d+$") || floorIdStr.contains("'") || floorIdStr.contains(";")) {
+                return StepTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_TYPE.getCode())
+                        .message("floor_id phải là kiểu số nguyên")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            if (floorIdStr.length() > 10) {
+                return StepTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message("floor_id không hợp lệ")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            long floorIdLong = Long.parseLong(floorIdStr);
+            if (floorIdLong <= 0 || floorIdLong > Integer.MAX_VALUE) {
+                return StepTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message("floor_id không hợp lệ")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            Integer floorId = (int) floorIdLong;
+            if (!mapTestRepository.existsById(floorId)) {
+                return StepTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.FLOOR_NOT_FOUND.getCode())
+                        .message("Tầng không tồn tại")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            List<StepEdgeData> edges = stepTestRepository.findByMapTest_Id(floorId)
+                    .stream()
+                    .map(step -> new StepEdgeData(
+                            step.getId(),
+                            step.getStartNodeId().getId(),
+                            step.getEndNodeId().getId(),
+                            step.getDistance(),
+                            step.getDirection(),
+                            step.getInstruction()
+                    ))
+                    .toList();
+
+            return StepTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message("Lấy danh sách edge thành công")
+                    .data(edges)
+                    .usedInTest(false)
+                    .build();
         } catch (Exception e) {
-            log.error("Error when get steps ", e);
+            log.error("Error when get edges: ", e);
             return StepTestResponse.builder()
                     .timestamp(new Timestamp(System.currentTimeMillis()))
                     .status("fail")

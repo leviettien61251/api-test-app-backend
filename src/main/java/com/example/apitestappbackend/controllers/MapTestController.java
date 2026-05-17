@@ -8,6 +8,7 @@ import com.example.apitestappbackend.services.MapTestService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -66,6 +67,17 @@ public class MapTestController {
                 ? HttpStatus.CREATED
                 : HttpStatus.BAD_REQUEST;
 
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
+    @GetMapping("/map/edges")
+    public HttpEntity<StepTestResponse> getEdges(@RequestParam MultiValueMap<String, String> queryParams) {
+        StepTestResponse res = mapTestService.getEdges(queryParams.get("floor_id"));
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
         return ResponseEntity
                 .status(status)
                 .body(res);
