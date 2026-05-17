@@ -10,24 +10,31 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "ward_tests")
+@Table(name = "saved_searches")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WardTest {
+public class SavedSearch {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "map_node_id", nullable = false)
-    private MapTest mapTest;
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_saved_searches_user_test"))
+    private UserTest userId;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_node_id", foreignKey = @ForeignKey(name = "fk_saved_searches_node_test"))
+    private NodeTest targetNode;
 
-    @Column(name = "ward_status", nullable = false)
-    private String wardStatus = "open";
+    @Column(name = "keyword", nullable = false, length = 100)
+    private String keyword;
+
+    @Column(name = "searched_at")
+    private Timestamp searchedAt;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

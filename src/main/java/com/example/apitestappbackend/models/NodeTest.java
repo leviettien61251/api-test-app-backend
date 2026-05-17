@@ -24,10 +24,10 @@ public class NodeTest {
     private MapTest mapTest;
 
     @Column(name = "x_coordinate", nullable = false)
-    private Double xCoordinate;
+    private Double XCoordinate;
 
     @Column(name = "y_coordinate", nullable = false)
-    private Double yCoordinate;
+    private Double YCoordinate;
 
     @Column(name = "type", nullable = false)
     private String type;
