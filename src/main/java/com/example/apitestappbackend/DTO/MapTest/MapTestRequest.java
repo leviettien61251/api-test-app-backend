@@ -14,7 +14,7 @@ public class MapTestRequest {
 
     private String imageUrl;
 
-    private Double scaleX;
+    private Object scaleX;
 
-    private Double scaleY;
+    private Object scaleY;
 }

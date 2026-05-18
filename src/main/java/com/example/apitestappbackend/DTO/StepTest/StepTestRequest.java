@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StepTestRequest {
-    private Integer mapId;
+    private Object mapId;
 
-    private Integer startNodeId;
+    private Object startNodeId;
 
-    private Integer endNodeId;
+    private Object endNodeId;
 
-    private Double distance;
+    private Object distance;
 
-    private String direction;
+    private Object direction;
 
-    private String instruction;
+    private Object instruction;
 }

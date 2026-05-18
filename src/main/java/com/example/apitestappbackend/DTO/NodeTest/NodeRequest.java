@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeRequest {
-    private Integer mapId;
+    private Object mapId;
 
-    private Double xCoordinate;
+    private Object xCoordinate;
 
-    private Double yCoordinate;
+    private Object yCoordinate;
 
-    private String type;
+    private Object type;
 
-    private Boolean isPassable = true;
+    private Object isPassable;
 }
