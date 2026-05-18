@@ -339,89 +339,66 @@ public class MapTestService {
         MapTest savedMt;
         List<MapTestData> mapTests = new ArrayList<>();
         try {
-            if (mapTestRepository.existsByBuildingCode(request.getBuildingCode().trim())) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.BUILDING_EXISTS.getCode())
-                        .message(ResponseCode.BUILDING_EXISTS.getMessage())
-                        .usedInTest(false)
-                        .build();
+            if (request == null) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_BODY, ResponseCode.MISSING_BODY.getMessage());
             }
 
-            if (request.getBuildingCode().isBlank()) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
+            if (isBlank(request.getBuildingCode())) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu buildingCode");
             }
 
-            if (request.getBuildingName().isBlank()) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
+            if (isBlank(request.getBuildingName())) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu buildingName");
             }
 
-            if (request.getScaleX().toString().isBlank() || request.getScaleY().toString().isBlank()) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
+            if (isBlank(request.getImageUrl())) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu imageUrl");
             }
 
-            if (request.getScaleX().isNaN() || request.getScaleY().isNaN()) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message(ResponseCode.INVALID_VALUE.getMessage())
-                        .usedInTest(false)
-                        .build();
+            if (request.getScaleX() == null) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu scaleX");
             }
 
-            if (request.getImageUrl().isBlank()) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
+            if (request.getScaleY() == null) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu scaleY");
             }
 
-            if (!isImageURLValid(request.getImageUrl().trim())) {
-                return MapTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message("Hinh anh khong hop le")
-                        .usedInTest(false)
-                        .build();
+            Double scaleX = parseNumber(request.getScaleX());
+            if (scaleX == null) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_TYPE, "scaleX phải là kiểu số");
+            }
+
+            Double scaleY = parseNumber(request.getScaleY());
+            if (scaleY == null) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_TYPE, "scaleY phải là kiểu số");
+            }
+
+            String buildingCode = request.getBuildingCode().trim();
+            String buildingName = request.getBuildingName().trim();
+            String imageUrl = request.getImageUrl().trim();
+
+            if (isInvalidScaleValue(scaleX)) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_VALUE, "scaleX phải là số lớn hơn 0");
+            }
+
+            if (isInvalidScaleValue(scaleY)) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_VALUE, "scaleY phải là số lớn hơn 0");
+            }
+
+            if (!isImageURLValid(imageUrl)) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_VALUE, "Hinh anh khong hop le");
+            }
+
+            if (mapTestRepository.existsByBuildingCode(buildingCode)) {
+                return buildMapTestFailResponse(ResponseCode.BUILDING_EXISTS, ResponseCode.BUILDING_EXISTS.getMessage());
             }
 
             MapTest mt = new MapTest();
-            mt.setBuildingCode(request.getBuildingCode().trim());
-            mt.setBuildingName(request.getBuildingName().trim());
-            mt.setImageUrl(request.getImageUrl().trim());
-            mt.setScaleX(Double.parseDouble(request.getScaleX().toString()));
-            mt.setScaleY(Double.parseDouble(request.getScaleY().toString()));
+            mt.setBuildingCode(buildingCode);
+            mt.setBuildingName(buildingName);
+            mt.setImageUrl(imageUrl);
+            mt.setScaleX(scaleX);
+            mt.setScaleY(scaleY);
             mt.setTimeStamp(new Timestamp(System.currentTimeMillis()));
             mt.setCode(ResponseCode.SUCCESS.getCode());
             mt.setMessage(ResponseCode.SUCCESS.getMessage());
@@ -461,111 +438,170 @@ public class MapTestService {
 
     }
 
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isBlank();
+    }
+
+    private Double parseNumber(Object value) {
+        if (!(value instanceof Number number)) {
+            return null;
+        }
+
+        return number.doubleValue();
+    }
+
+    private Integer parseInteger(Object value) {
+        if (!(value instanceof Number number)) {
+            return null;
+        }
+
+        double doubleValue = number.doubleValue();
+        if (Double.isNaN(doubleValue)
+                || Double.isInfinite(doubleValue)
+                || doubleValue % 1 != 0
+                || doubleValue > Integer.MAX_VALUE
+                || doubleValue < Integer.MIN_VALUE) {
+            return null;
+        }
+
+        return number.intValue();
+    }
+
+    private boolean isInvalidScaleValue(Double value) {
+        return value.isNaN() || value.isInfinite() || value <= 0;
+    }
+
+    private MapTestResponse buildMapTestFailResponse(ResponseCode responseCode, String message) {
+        return MapTestResponse
+                .builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(message)
+                .usedInTest(false)
+                .build();
+    }
+
+    private StepTestResponse buildStepFailResponse(ResponseCode responseCode, String message) {
+        return StepTestResponse
+                .builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(message)
+                .usedInTest(false)
+                .build();
+    }
+
     public StepTestResponse insertStep(StepTestRequest request) {
         StepTest savedSt;
         List<StepTestData> stepTests = new ArrayList<>();
         try {
+            if (request == null) {
+                return buildStepFailResponse(ResponseCode.MISSING_BODY, ResponseCode.MISSING_BODY.getMessage());
+            }
+
             if (request.getMapId() == null) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("Map id null")
-                        .usedInTest(false)
-                        .build();
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu mapId");
             }
 
             if (request.getStartNodeId() == null) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("Start Node id null")
-                        .usedInTest(false)
-                        .build();
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu startNodeId");
             }
 
             if (request.getEndNodeId() == null) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("End Node id null")
-                        .usedInTest(false)
-                        .build();
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu endNodeId");
             }
 
-            if (request.getMapId().toString().isBlank()) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("Thiếu id map")
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getStartNodeId().toString().isBlank() || request.getEndNodeId().toString().isBlank()) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("Thiếu id start/ end node")
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getDistance().toString().isBlank()) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("Thiếu số liệu khoảng cách")
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getDirection().trim().isBlank()) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("Thiếu hướng đi")
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getInstruction().trim().isBlank()) {
-                return StepTestResponse
-                        .builder()
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .status("fail")
-                        .code(ResponseCode.INVALID_BODY.getCode())
-                        .message("Thiếu chỉ dẫn")
-                        .usedInTest(false)
-                        .build();
+            if (request.getDistance() == null) {
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu distance");
             }
 
-            MapTest mt = mapTestRepository.findById(request.getMapId()).orElseThrow(
-                    () -> new IllegalArgumentException("Map not found")
-            );
-            NodeTest startNt = nodeTestRepository.findById(request.getStartNodeId()).orElseThrow(
-                    () -> new IllegalArgumentException("Start node not found")
-            );
-            NodeTest endNt = nodeTestRepository.findById(request.getEndNodeId()).orElseThrow(
-                    () -> new IllegalArgumentException("End node not found")
-            );
+            if (request.getDirection() == null) {
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu direction");
+            }
+
+            if (request.getInstruction() == null) {
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu instruction");
+            }
+
+            if (!(request.getDirection() instanceof String direction)) {
+                return buildStepFailResponse(ResponseCode.INVALID_TYPE, "direction phải là kiểu chuỗi");
+            }
+
+            if (!(request.getInstruction() instanceof String instruction)) {
+                return buildStepFailResponse(ResponseCode.INVALID_TYPE, "instruction phải là kiểu chuỗi");
+            }
+
+            direction = direction.trim();
+            instruction = instruction.trim();
+
+            if (direction.isBlank()) {
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu direction");
+            }
+
+            if (instruction.isBlank()) {
+                return buildStepFailResponse(ResponseCode.MISSING_PARAM, "Thiếu instruction");
+            }
+
+            Integer mapId = parseInteger(request.getMapId());
+            if (mapId == null) {
+                return buildStepFailResponse(ResponseCode.INVALID_TYPE, "mapId phải là kiểu số nguyên");
+            }
+
+            Integer startNodeId = parseInteger(request.getStartNodeId());
+            if (startNodeId == null) {
+                return buildStepFailResponse(ResponseCode.INVALID_TYPE, "startNodeId phải là kiểu số nguyên");
+            }
+
+            Integer endNodeId = parseInteger(request.getEndNodeId());
+            if (endNodeId == null) {
+                return buildStepFailResponse(ResponseCode.INVALID_TYPE, "endNodeId phải là kiểu số nguyên");
+            }
+
+            Double distance = parseNumber(request.getDistance());
+            if (distance == null) {
+                return buildStepFailResponse(ResponseCode.INVALID_TYPE, "distance phải là kiểu số");
+            }
+
+            if (mapId <= 0) {
+                return buildStepFailResponse(ResponseCode.INVALID_VALUE, "mapId phải lớn hơn 0");
+            }
+
+            if (startNodeId <= 0) {
+                return buildStepFailResponse(ResponseCode.INVALID_VALUE, "startNodeId phải lớn hơn 0");
+            }
+
+            if (endNodeId <= 0) {
+                return buildStepFailResponse(ResponseCode.INVALID_VALUE, "endNodeId phải lớn hơn 0");
+            }
+
+            if (isInvalidScaleValue(distance)) {
+                return buildStepFailResponse(ResponseCode.INVALID_VALUE, "distance phải là số lớn hơn 0");
+            }
+
+            MapTest mt = mapTestRepository.findById(mapId).orElse(null);
+            if (mt == null) {
+                return buildStepFailResponse(ResponseCode.FLOOR_NOT_FOUND, ResponseCode.FLOOR_NOT_FOUND.getMessage());
+            }
+
+            NodeTest startNt = nodeTestRepository.findById(startNodeId).orElse(null);
+            if (startNt == null) {
+                return buildStepFailResponse(ResponseCode.NODE_NOT_FOUND, "Start node not found");
+            }
+
+            NodeTest endNt = nodeTestRepository.findById(endNodeId).orElse(null);
+            if (endNt == null) {
+                return buildStepFailResponse(ResponseCode.NODE_NOT_FOUND, "End node not found");
+            }
 
             StepTest st = new StepTest();
             st.setMapTest(mt);
             st.setStartNodeId(startNt);
             st.setEndNodeId(endNt);
-            st.setDistance(request.getDistance());
-            st.setDirection(request.getDirection().trim());
-            st.setInstruction(request.getInstruction().trim());
+            st.setDistance(distance);
+            st.setDirection(direction);
+            st.setInstruction(instruction);
             st.setTimeStamp(new Timestamp(System.currentTimeMillis()));
             st.setCode(ResponseCode.SUCCESS.getCode());
             st.setMessage(ResponseCode.SUCCESS.getMessage());

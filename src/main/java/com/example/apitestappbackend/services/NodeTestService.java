@@ -31,69 +31,73 @@ public class NodeTestService {
         NodeTest savedNt;
 
         try {
-            if (request.getMapId() == null) {
-                return NodeResponse.builder()
-                        .status("fail")
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getXCoordinate().toString().isBlank() || request.getYCoordinate().toString().isBlank()) {
-                return NodeResponse.builder()
-                        .status("fail")
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getType().isBlank()) {
-                return NodeResponse.builder()
-                        .status("fail")
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getIsPassable().toString().isBlank()) {
-                return NodeResponse.builder()
-                        .status("fail")
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.MISSING_PARAM.getCode())
-                        .message(ResponseCode.MISSING_PARAM.getMessage())
-                        .usedInTest(false)
-                        .build();
-            }
-            if (request.getXCoordinate().isNaN() || request.getYCoordinate().isNaN()) {
-                return NodeResponse.builder()
-                        .status("fail")
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.INVALID_VALUE.getCode())
-                        .message(ResponseCode.INVALID_VALUE.getMessage())
-                        .usedInTest(false)
-                        .build();
+            if (request == null) {
+                return buildNodeFailResponse(ResponseCode.MISSING_BODY, ResponseCode.MISSING_BODY.getMessage());
             }
 
-            MapTest mt = mapTestRepository.findById(request.getMapId()).orElse(null);
+            if (request.getMapId() == null) {
+                return buildNodeFailResponse(ResponseCode.MISSING_PARAM, "Thiếu mapId");
+            }
+
+            if (request.getXCoordinate() == null) {
+                return buildNodeFailResponse(ResponseCode.MISSING_PARAM, "Thiếu xCoordinate");
+            }
+
+            if (request.getYCoordinate() == null) {
+                return buildNodeFailResponse(ResponseCode.MISSING_PARAM, "Thiếu yCoordinate");
+            }
+
+            if (isBlankString(request.getType())) {
+                return buildNodeFailResponse(ResponseCode.MISSING_PARAM, "Thiếu type");
+            }
+
+            if (request.getIsPassable() == null) {
+                return buildNodeFailResponse(ResponseCode.MISSING_PARAM, "Thiếu isPassable");
+            }
+
+            Integer mapId = parsePositiveInteger(request.getMapId());
+            if (mapId == null) {
+                return buildNodeFailResponse(ResponseCode.INVALID_TYPE, "mapId phải là kiểu số nguyên");
+            }
+
+            if (mapId <= 0) {
+                return buildNodeFailResponse(ResponseCode.INVALID_VALUE, "mapId phải lớn hơn 0");
+            }
+
+            Double xCoordinate = parseNumber(request.getXCoordinate());
+            if (xCoordinate == null) {
+                return buildNodeFailResponse(ResponseCode.INVALID_TYPE, "xCoordinate phải là kiểu số");
+            }
+
+            Double yCoordinate = parseNumber(request.getYCoordinate());
+            if (yCoordinate == null) {
+                return buildNodeFailResponse(ResponseCode.INVALID_TYPE, "yCoordinate phải là kiểu số");
+            }
+
+            if (isInvalidCoordinateValue(xCoordinate)) {
+                return buildNodeFailResponse(ResponseCode.INVALID_VALUE, "xCoordinate phải là số lớn hơn 0");
+            }
+
+            if (isInvalidCoordinateValue(yCoordinate)) {
+                return buildNodeFailResponse(ResponseCode.INVALID_VALUE, "yCoordinate phải là số lớn hơn 0");
+            }
+
+            if (!(request.getIsPassable() instanceof Boolean isPassable)) {
+                return buildNodeFailResponse(ResponseCode.INVALID_TYPE, "isPassable phải là kiểu boolean");
+            }
+
+            String type = request.getType().toString().trim();
+            MapTest mt = mapTestRepository.findById(mapId).orElse(null);
             if (mt == null) {
-                return NodeResponse.builder()
-                        .status("fail")
-                        .timestamp(new Timestamp(System.currentTimeMillis()))
-                        .code(ResponseCode.FLOOR_NOT_FOUND.getCode())
-                        .message(ResponseCode.FLOOR_NOT_FOUND.getMessage())
-                        .usedInTest(false)
-                        .build();
+                return buildNodeFailResponse(ResponseCode.FLOOR_NOT_FOUND, ResponseCode.FLOOR_NOT_FOUND.getMessage());
             }
 
             NodeTest nt = new NodeTest();
             nt.setMapTest(mt);
-            nt.setXCoordinate(Double.parseDouble(request.getXCoordinate().toString()));
-            nt.setYCoordinate(Double.parseDouble(request.getYCoordinate().toString()));
-            nt.setType(request.getType().trim());
-            nt.setIsPassable(Boolean.parseBoolean(request.getIsPassable().toString()));
+            nt.setXCoordinate(xCoordinate);
+            nt.setYCoordinate(yCoordinate);
+            nt.setType(type);
+            nt.setIsPassable(isPassable);
             nt.setTimeStamp(new Timestamp(System.currentTimeMillis()));
             nt.setStatus("success");
             nt.setCode(ResponseCode.SUCCESS.getCode());
@@ -130,6 +134,50 @@ public class NodeTestService {
                     .build();
         }
 
+    }
+
+    private boolean isBlankString(Object value) {
+        return !(value instanceof String) || ((String) value).trim().isBlank();
+    }
+
+    private Integer parsePositiveInteger(Object value) {
+        if (!(value instanceof Number number)) {
+            return null;
+        }
+
+        double doubleValue = number.doubleValue();
+        if (Double.isNaN(doubleValue)
+                || Double.isInfinite(doubleValue)
+                || doubleValue % 1 != 0
+                || doubleValue > Integer.MAX_VALUE
+                || doubleValue < Integer.MIN_VALUE) {
+            return null;
+        }
+
+        return number.intValue();
+    }
+
+    private Double parseNumber(Object value) {
+        if (!(value instanceof Number number)) {
+            return null;
+        }
+
+        return number.doubleValue();
+    }
+
+    private boolean isInvalidCoordinateValue(Double value) {
+        return value.isNaN() || value.isInfinite() || value <= 0;
+    }
+
+    private NodeResponse buildNodeFailResponse(ResponseCode responseCode, String message) {
+        return NodeResponse.builder()
+                .status("fail")
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .code(responseCode.getCode())
+                .message(message)
+                .usedInTest(false)
+                .createdAt(new Timestamp(System.currentTimeMillis()))
+                .build();
     }
 
 
