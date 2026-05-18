@@ -2,8 +2,12 @@ package com.example.apitestappbackend.controllers;
 
 import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
 import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
+import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchRequest;
+import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchResponse;
 import com.example.apitestappbackend.DTO.StepTest.StepTestRequest;
 import com.example.apitestappbackend.DTO.StepTest.StepTestResponse;
+import com.example.apitestappbackend.DTO.WardTest.WardTestRequest;
+import com.example.apitestappbackend.DTO.WardTest.WardTestResponse;
 import com.example.apitestappbackend.services.MapTestService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -83,6 +87,29 @@ public class MapTestController {
                 .body(res);
     }
 
+    @PostMapping("/map/search")
+    public HttpEntity<SavedSearchResponse> postSavedSearch(@RequestBody SavedSearchRequest request) {
+        SavedSearchResponse res = mapTestService.postSavedSearch(request);
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
+    @PostMapping("/map/insert-ward")
+    public HttpEntity<WardTestResponse> postWardTest(@RequestBody WardTestRequest request) {
+        WardTestResponse res = mapTestService.postWardTest(request);
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
 
     @DeleteMapping("/map/clean")
     public HttpEntity<String> cleanMapData() {
@@ -98,4 +125,16 @@ public class MapTestController {
     public HttpEntity<String> cleanStepData() {
         return ResponseEntity.ok(mapTestService.cleanStepData());
     }
+
+    @DeleteMapping("/map/search/clean")
+    public HttpEntity<String> cleanSearchData() {
+        return ResponseEntity.ok(mapTestService.cleanSavedSearchData());
+    }
+
+    @DeleteMapping("/map/ward/clean")
+    public HttpEntity<String> cleanWardData() {
+        return ResponseEntity.ok(mapTestService.cleanWardData());
+    }
+
+
 }

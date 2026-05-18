@@ -21,7 +21,7 @@ public class WardTest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "map_node_id", nullable = false)
-    private MapTest mapTest;
+    private NodeTest mapNode;
 
     @Column(name = "name", nullable = false)
     private String name;

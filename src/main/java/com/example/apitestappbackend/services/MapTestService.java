@@ -3,17 +3,18 @@ package com.example.apitestappbackend.services;
 import com.example.apitestappbackend.DTO.MapTest.MapTestData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
 import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
+import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchRequest;
+import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchResponse;
 import com.example.apitestappbackend.DTO.StepTest.StepEdgeData;
 import com.example.apitestappbackend.DTO.StepTest.StepTestData;
 import com.example.apitestappbackend.DTO.StepTest.StepTestRequest;
 import com.example.apitestappbackend.DTO.StepTest.StepTestResponse;
+import com.example.apitestappbackend.DTO.WardTest.WardTestData;
+import com.example.apitestappbackend.DTO.WardTest.WardTestRequest;
+import com.example.apitestappbackend.DTO.WardTest.WardTestResponse;
 import com.example.apitestappbackend.ResponseCode;
-import com.example.apitestappbackend.models.MapTest;
-import com.example.apitestappbackend.models.NodeTest;
-import com.example.apitestappbackend.models.StepTest;
-import com.example.apitestappbackend.repository.MapTestRepository;
-import com.example.apitestappbackend.repository.NodeTestRepository;
-import com.example.apitestappbackend.repository.StepTestRepository;
+import com.example.apitestappbackend.models.*;
+import com.example.apitestappbackend.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +29,22 @@ public class MapTestService {
     private final MapTestRepository mapTestRepository;
     private final StepTestRepository stepTestRepository;
     private final NodeTestRepository nodeTestRepository;
+    private final WardTestRepository wardTestRepository;
+    private final SavedSearchRepository savedSearchRepository;
+    private final UserTestRepository userTestRepository;
 
-    public MapTestService(MapTestRepository mapTestRepository, StepTestRepository stepTestRepository, NodeTestRepository nodeTestRepository) {
+    public MapTestService(MapTestRepository mapTestRepository,
+                          StepTestRepository stepTestRepository,
+                          NodeTestRepository nodeTestRepository,
+                          WardTestRepository wardTestRepository,
+                          SavedSearchRepository savedSearchRepository,
+                          UserTestRepository userTestRepository) {
         this.mapTestRepository = mapTestRepository;
         this.stepTestRepository = stepTestRepository;
         this.nodeTestRepository = nodeTestRepository;
+        this.wardTestRepository = wardTestRepository;
+        this.savedSearchRepository = savedSearchRepository;
+        this.userTestRepository = userTestRepository;
     }
 
     public boolean isImageURLValid(String url) {
@@ -165,6 +177,162 @@ public class MapTestService {
     public String cleanStepData() {
         stepTestRepository.deleteAllInBatch();
         return "Dọn dẹp dữ liệu Step thành công";
+    }
+
+    public String cleanSavedSearchData() {
+        savedSearchRepository.deleteAllInBatch();
+        return "Dọn dẹp dữ liệu Search thành công";
+    }
+
+    public String cleanWardData() {
+        wardTestRepository.deleteAllInBatch();
+        return "Dọn dẹp dữ liệu Ward thành công";
+    }
+
+    public SavedSearchResponse postSavedSearch(SavedSearchRequest request) {
+        try {
+            if (request == null || request.getKeyword() == null || request.getUserId() == null) {
+                return SavedSearchResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu từ khóa tìm kiếm hoặc user_id")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            if (!(request.getKeyword() instanceof String) || !(request.getUserId() instanceof String)) {
+                return SavedSearchResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_TYPE.getCode())
+                        .message("Sai kiểu dữ liệu")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            String keyword = ((String) request.getKeyword()).trim();
+            if (keyword.isBlank()) {
+                return SavedSearchResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu từ khóa tìm kiếm hoặc user_id")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            UserTest user = userTestRepository.findById(request.getUserId()).orElse(
+                    null
+            );
+            List<WardTest> wards = wardTestRepository.findByNameContainingIgnoreCase(keyword);
+            List<WardTestData> searchData = wards.stream()
+                    .map(ward -> new WardTestData(
+                            ward.getId(),
+                            ward.getName(),
+                            ward.getMapNode().getId(),
+                            ward.getMapNode().getMapTest().getId(),
+                            ward.getWardStatus()
+                    ))
+                    .toList();
+
+            if (!wards.isEmpty()) {
+                SavedSearch savedSearch = new SavedSearch();
+                savedSearch.setUserId(user);
+                savedSearch.setTargetNode(wards.get(0).getMapNode());
+                savedSearch.setKeyword(keyword);
+                savedSearch.setSearchedAt(new Timestamp(System.currentTimeMillis()));
+                savedSearch.setStatus("success");
+                savedSearch.setCode(ResponseCode.SUCCESS.getCode());
+                savedSearch.setMessage(ResponseCode.SUCCESS.getMessage());
+                savedSearch.setUsedInTest(false);
+                savedSearchRepository.save(savedSearch);
+            }
+
+            return SavedSearchResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message("Tìm kiếm hoàn tất")
+                    .data(searchData)
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when post saved search: ", e);
+            return SavedSearchResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("fail")
+                    .code(ResponseCode.INTERNAL_SERVER_ERROR.getCode())
+                    .message(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
+                    .usedInTest(false)
+                    .build();
+        }
+    }
+
+    public WardTestResponse postWardTest(WardTestRequest request) {
+        try {
+            if (request == null || request.getMapNodeId() == null || request.getName() == null || request.getName().trim().isBlank()) {
+                return WardTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message(ResponseCode.MISSING_PARAM.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+
+            NodeTest nodeTest = nodeTestRepository.findById(request.getMapNodeId()).orElse(null);
+            if (nodeTest == null) {
+                return WardTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.NODE_NOT_FOUND.getCode())
+                        .message(ResponseCode.NODE_NOT_FOUND.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+
+            WardTest wardTest = new WardTest();
+            wardTest.setMapNode(nodeTest);
+            wardTest.setName(request.getName().trim());
+            wardTest.setWardStatus(
+                    request.getWardStatus() == null || request.getWardStatus().trim().isBlank()
+                            ? "open"
+                            : request.getWardStatus().trim()
+            );
+            wardTest.setStatus("success");
+            wardTest.setCode(ResponseCode.SUCCESS.getCode());
+            wardTest.setMessage(ResponseCode.SUCCESS.getMessage());
+            wardTest.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+            wardTest.setUsedInTest(false);
+
+            WardTest savedWard = wardTestRepository.save(wardTest);
+            WardTestData wardTestData = new WardTestData(
+                    savedWard.getId(),
+                    savedWard.getName(),
+                    savedWard.getMapNode().getId(),
+                    savedWard.getMapNode().getMapTest().getId(),
+                    savedWard.getWardStatus()
+            );
+
+            return WardTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message(ResponseCode.SUCCESS.getMessage())
+                    .data(List.of(wardTestData))
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when post ward test: ", e);
+            return WardTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("fail")
+                    .code(ResponseCode.INTERNAL_SERVER_ERROR.getCode())
+                    .message(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
+                    .usedInTest(false)
+                    .build();
+        }
     }
 
     public MapTestResponse insertMapTest(MapTestRequest request) {
@@ -546,7 +714,7 @@ public class MapTestService {
                 mapTests = mapTestRepository.findAll();
             }
 
-            if(Objects.equals(buildingCode, "")) {
+            if (Objects.equals(buildingCode, "")) {
                 mapTests = mapTestRepository.findAll();
                 return MapTestResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -568,7 +736,6 @@ public class MapTestService {
                         .usedInTest(false)
                         .build();
             }
-
 
 
             return MapTestResponse.builder()

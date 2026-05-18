@@ -1,4 +1,4 @@
-package com.example.apitestappbackend.DTO.SavedSearch;
+package com.example.apitestappbackend.DTO.WardTest;
 
 import com.example.apitestappbackend.DTO.Response;
 import lombok.AllArgsConstructor;
@@ -13,8 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class SavedSearchResponse extends Response {
-    private List<?> data;
+public class WardTestResponse extends Response {
+    private List<WardTestData> data;
     private Boolean usedInTest;
     private Timestamp timestamp;
 }
