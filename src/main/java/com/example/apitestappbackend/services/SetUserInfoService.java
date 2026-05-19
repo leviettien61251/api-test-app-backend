@@ -69,7 +69,7 @@ public class SetUserInfoService {
         UserTest savedUT;
 
         try {
-            if (request.getFullName().isBlank()) {
+            if (request == null || request.getFullName() == null || request.getFullName().isBlank()) {
                 return SetUserInfoResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .status("fail")
@@ -79,7 +79,7 @@ public class SetUserInfoService {
                         .createdAt(new Timestamp(System.currentTimeMillis()))
                         .build();
             }
-            if (request.getPhoneNumber().isBlank()) {
+            if (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank()) {
                 return SetUserInfoResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .status("fail")
@@ -89,7 +89,7 @@ public class SetUserInfoService {
                         .createdAt(new Timestamp(System.currentTimeMillis()))
                         .build();
             }
-            if (request.getAddress().isBlank()) {
+            if (request.getAddress() == null) {
                 return SetUserInfoResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .status("fail")
@@ -99,7 +99,34 @@ public class SetUserInfoService {
                         .createdAt(new Timestamp(System.currentTimeMillis()))
                         .build();
             }
-            if (!isPhoneNumberValid(request.getPhoneNumber().trim())) {
+
+            String phoneNumber = request.getPhoneNumber().trim();
+            String fullName = request.getFullName().trim();
+            String address = request.getAddress().trim();
+
+            if (phoneNumber.matches(".*[a-zA-Z].*")) {
+                return SetUserInfoResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message("Số điện thoại không được chứa chữ")
+                        .usedInTest(false)
+                        .createdAt(new Timestamp(System.currentTimeMillis()))
+                        .build();
+            }
+
+            if (fullName.matches(".*\\d.*")) {
+                return SetUserInfoResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_VALUE.getCode())
+                        .message("Họ tên không được chứa số")
+                        .usedInTest(false)
+                        .createdAt(new Timestamp(System.currentTimeMillis()))
+                        .build();
+            }
+
+            if (!isPhoneNumberValid(phoneNumber)) {
                 return SetUserInfoResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .status("fail")
@@ -110,7 +137,7 @@ public class SetUserInfoService {
                         .build();
 
             }
-            if (!isUserLoggedInWithPhoneNumber(request.getPhoneNumber().trim())) {
+            if (!isUserLoggedInWithPhoneNumber(phoneNumber)) {
                 return SetUserInfoResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .status("fail")
@@ -123,9 +150,9 @@ public class SetUserInfoService {
 
             //lưu thông tin vào table set_user_info
             SetUserInfo newS = new SetUserInfo();
-            newS.setFullName(request.getFullName().trim());
-            newS.setPhoneNumber(request.getPhoneNumber().trim());
-            newS.setAddress(request.getAddress().trim());
+            newS.setFullName(fullName);
+            newS.setPhoneNumber(phoneNumber);
+            newS.setAddress(address);
             newS.setStatus("success");
             newS.setCode(ResponseCode.SUCCESS.getCode());
             newS.setMessage(ResponseCode.SUCCESS.getMessage());
