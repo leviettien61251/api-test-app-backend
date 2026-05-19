@@ -44,6 +44,11 @@ public class SetUserInfoService {
         );
     }
 
+    public String cleanSetUserInfoData() {
+        setUserInfoRepository.deleteAllInBatch();
+        return "Successfully deleted users data: ";
+    }
+
     public boolean isUserLoggedInWithPhoneNumber(String phoneNumber) {
         return loggedInUsersRepository.existsByPhoneNumber(phoneNumber);
     }
