@@ -5,6 +5,7 @@ import com.example.apitestappbackend.DTO.SetUserInfo.SetUserInfoResponse;
 import com.example.apitestappbackend.models.SetUserInfo;
 import com.example.apitestappbackend.services.SetUserInfoService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class SetUserInfoController {
 
     @GetMapping("/set-user-info-by-id")
     public SetUserInfo findById(@RequestParam("id") String id) {
-            return setUserInfoService.findById(id);
+        return setUserInfoService.findById(id);
     }
 
     @GetMapping("/set-user-info-by-phone-number")
@@ -48,4 +49,8 @@ public class SetUserInfoController {
                 .body(res);
     }
 
+    @DeleteMapping("/set-user-info/clean")
+    public HttpEntity<String> cleanSetUserInfoData() {
+        return ResponseEntity.ok(setUserInfoService.cleanSetUserInfoData());
+    }
 }
