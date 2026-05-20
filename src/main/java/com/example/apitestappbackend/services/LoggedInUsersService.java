@@ -6,7 +6,7 @@ import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.models.SignupNotYetLogin;
-import com.example.apitestappbackend.models.UserTest;
+import com.example.apitestappbackend.models.hospitaldb.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.LoggedOutUserRepository;
 import com.example.apitestappbackend.repository.SignupNotYetLoginRepository;
@@ -98,11 +98,11 @@ public class LoggedInUsersService {
     }
 
     private boolean isUserSignUp(String phoneNumber) {
-        return signupNotYetLoginRepository.existsByPhoneNumber(phoneNumber);
+        return userTestRepository.existsByPhoneNumber(phoneNumber);
     }
 
     private boolean isPasswordCorrect(String password) {
-        return signupNotYetLoginRepository.existsByPassword(password);
+        return userTestRepository.existsByPassword(password);
     }
 
     private boolean isPhoneNumberValid(String phoneNumber) {

@@ -4,7 +4,7 @@ import com.example.apitestappbackend.DTO.LogoutTest.LoggedOutUserData;
 import com.example.apitestappbackend.DTO.LogoutTest.LoggedOutUserResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedOutUser;
-import com.example.apitestappbackend.models.UserTest;
+import com.example.apitestappbackend.models.hospitaldb.UserTest;
 import com.example.apitestappbackend.repository.LoggedOutUserRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
 import lombok.extern.slf4j.Slf4j;

@@ -3,7 +3,7 @@
 //import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
 //import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
 //import com.example.apitestappbackend.ResponseCode;
-//import com.example.apitestappbackend.models.MapTest;
+//import com.example.apitestappbackend.models.hospitaldb.MapTest;
 //import com.example.apitestappbackend.repository.MapTestRepository;
 //import com.example.apitestappbackend.services.MapTestService;
 //import org.junit.jupiter.api.BeforeEach;

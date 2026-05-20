@@ -5,7 +5,7 @@ import com.example.apitestappbackend.DTO.SetAvatar.SetAvatarRequest;
 import com.example.apitestappbackend.DTO.SetAvatar.SetAvatarResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.SetAvatar;
-import com.example.apitestappbackend.models.UserTest;
+import com.example.apitestappbackend.models.hospitaldb.UserTest;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.SetAvatarRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;

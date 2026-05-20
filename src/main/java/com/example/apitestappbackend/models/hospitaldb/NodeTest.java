@@ -1,26 +1,39 @@
-package com.example.apitestappbackend.models;
+package com.example.apitestappbackend.models.hospitaldb;
+
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "route_tests")
+@Table(name = "node_tests")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteTest {
+public class NodeTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "route_name", length = 100, nullable = false)
-    private String routeName;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "map_id", nullable = false)
+    private MapTest mapTest;
+
+    @Column(name = "x_coordinate", nullable = false)
+    private Double XCoordinate;
+
+    @Column(name = "y_coordinate", nullable = false)
+    private Double YCoordinate;
+
+    @Column(name = "type", nullable = false)
+    private String type;
+
+    @Column(name = "is_passable", nullable = false)
+    private Boolean isPassable = true;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
@@ -41,4 +54,5 @@ public class RouteTest {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
+
 }

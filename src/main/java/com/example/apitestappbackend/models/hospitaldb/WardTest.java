@@ -1,4 +1,4 @@
-package com.example.apitestappbackend.models;
+package com.example.apitestappbackend.models.hospitaldb;
 
 
 import jakarta.persistence.*;
@@ -6,34 +6,28 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "maps_test")
+@Table(name = "ward_tests")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MapTest {
+public class WardTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "building_code", length = 50, nullable = false)
-    private String buildingCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "map_node_id", nullable = false)
+    private NodeTest mapNode;
 
-    @Column(name = "building_name", length = 100, nullable = false)
-    private String buildingName;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-    @Column(name = "image_url")
-    private String imageUrl;
-
-    @Column(name = "scale_x", nullable = false)
-    private Double scaleX;
-
-    @Column(name = "scale_y", nullable = false)
-    private Double scaleY;
+    @Column(name = "ward_status", nullable = false)
+    private String wardStatus = "open";
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

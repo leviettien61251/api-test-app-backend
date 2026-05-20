@@ -1,4 +1,4 @@
-package com.example.apitestappbackend.models;
+package com.example.apitestappbackend.models.hospitaldb;
 
 
 import jakarta.persistence.*;
@@ -10,31 +10,29 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "saved_searches")
+@Table(name = "maps_test")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SavedSearch {
-
+public class MapTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
+    @Column(name = "building_code", length = 50, nullable = false)
+    private String buildingCode;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_saved_searches_user_test"))
-    private UserTest userId;
+    @Column(name = "building_name", length = 100, nullable = false)
+    private String buildingName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target_node_id", foreignKey = @ForeignKey(name = "fk_saved_searches_node_test"))
-    private NodeTest targetNode;
+    @Column(name = "image_url")
+    private String imageUrl;
 
-    @Column(name = "keyword", nullable = false, length = 100)
-    private String keyword;
+    @Column(name = "scale_x", nullable = false)
+    private Double scaleX;
 
-    @Column(name = "searched_at")
-    private Timestamp searchedAt;
+    @Column(name = "scale_y", nullable = false)
+    private Double scaleY;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
