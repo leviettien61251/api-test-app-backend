@@ -1,5 +1,4 @@
-package com.example.apitestappbackend.models;
-
+package com.example.apitestappbackend.models.hospitaldb;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,24 +9,18 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "ward_tests")
+@Table(name = "route_tests")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class WardTest {
+public class RouteTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "map_node_id", nullable = false)
-    private NodeTest mapNode;
-
-    @Column(name = "name", nullable = false)
-    private String name;
-
-    @Column(name = "ward_status", nullable = false)
-    private String wardStatus = "open";
+//    @ManyToMany(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "route_id", nullable = false, )
+//    private RouteTest routeId;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

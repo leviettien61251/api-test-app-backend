@@ -1,6 +1,6 @@
 package com.example.apitestappbackend.repository;
 
-import com.example.apitestappbackend.models.SavedSearch;
+import com.example.apitestappbackend.models.hospitaldb.SavedSearch;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

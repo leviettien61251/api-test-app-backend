@@ -3,7 +3,7 @@ package com.example.apitestappbackend.LoggedOutUser;
 import com.example.apitestappbackend.DTO.LogoutTest.LoggedOutUserResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedOutUser;
-import com.example.apitestappbackend.models.UserTest;
+import com.example.apitestappbackend.models.hospitaldb.UserTest;
 import com.example.apitestappbackend.repository.LoggedOutUserRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
 import com.example.apitestappbackend.services.LoggedOutUserService;

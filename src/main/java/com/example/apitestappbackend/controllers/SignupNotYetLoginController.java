@@ -51,10 +51,23 @@ public class SignupNotYetLoginController {
         signupNotYetLoginService.insert(s);
     }
 
+    @PostMapping("/signup_")
+    public HttpEntity<SignUpResponse> signup_(@Valid @RequestBody SignUpRequest request) {
+        log.info("Sign up request for phone: {}", request.getPhoneNumber());
+        SignUpResponse res = signupNotYetLoginService.signUp(request);
+
+        HttpStatus status = res.getSignupStatus().equals("success")
+                ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
     @PostMapping("/signup")
     public HttpEntity<SignUpResponse> signup(@Valid @RequestBody SignUpRequest request) {
         log.info("Sign up request for phone: {}", request.getPhoneNumber());
-        SignUpResponse res = signupNotYetLoginService.signUp(request);
+        SignUpResponse res = signupNotYetLoginService.signUp_(request);
 
         HttpStatus status = res.getSignupStatus().equals("success")
                 ? HttpStatus.CREATED

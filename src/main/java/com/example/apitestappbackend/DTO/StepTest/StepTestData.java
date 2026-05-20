@@ -1,7 +1,7 @@
 package com.example.apitestappbackend.DTO.StepTest;
 
-import com.example.apitestappbackend.models.MapTest;
-import com.example.apitestappbackend.models.NodeTest;
+import com.example.apitestappbackend.models.hospitaldb.MapTest;
+import com.example.apitestappbackend.models.hospitaldb.NodeTest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

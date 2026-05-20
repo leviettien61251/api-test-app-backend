@@ -1,6 +1,6 @@
 package com.example.apitestappbackend.repository;
 
-import com.example.apitestappbackend.models.UserTest;
+import com.example.apitestappbackend.models.hospitaldb.UserTest;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -42,4 +42,7 @@ public interface UserTestRepository extends JpaRepository<UserTest, String> {
     @Transactional
     @Query("UPDATE UserTest u SET u.token = '', u.refreshToken = '', u.tokenExpiresAt = null WHERE u.phoneNumber = :phoneNumber")
     int clearTokenInfo(@Param("phoneNumber") String phoneNumber);
+
+
+    boolean existsByPassword(String password);
 }

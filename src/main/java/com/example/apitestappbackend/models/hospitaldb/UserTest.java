@@ -1,4 +1,4 @@
-package com.example.apitestappbackend.models;
+package com.example.apitestappbackend.models.hospitaldb;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,5 +1,4 @@
-package com.example.apitestappbackend.models;
-
+package com.example.apitestappbackend.models.hospitaldb;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,11 +9,11 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "node_tests")
+@Table(name = "step_tests")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class NodeTest {
+public class StepTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -23,17 +22,22 @@ public class NodeTest {
     @JoinColumn(name = "map_id", nullable = false)
     private MapTest mapTest;
 
-    @Column(name = "x_coordinate", nullable = false)
-    private Double XCoordinate;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "start_node_id", nullable = false)
+    private NodeTest startNodeId;
 
-    @Column(name = "y_coordinate", nullable = false)
-    private Double YCoordinate;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "end_node_id", nullable = false)
+    private NodeTest endNodeId;
 
-    @Column(name = "type", nullable = false)
-    private String type;
+    @Column(name = "distance", nullable = false)
+    private Double distance;
 
-    @Column(name = "is_passable", nullable = false)
-    private Boolean isPassable = true;
+    @Column(name = "direction", length = 50)
+    private String direction;
+
+    @Column(name = "instruction")
+    private String instruction;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
@@ -54,5 +58,4 @@ public class NodeTest {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
-
 }

@@ -1,4 +1,5 @@
-package com.example.apitestappbackend.models;
+package com.example.apitestappbackend.models.hospitaldb;
+
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,35 +10,31 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "step_tests")
+@Table(name = "saved_searches")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class StepTest {
+public class SavedSearch {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "map_id", nullable = false)
-    private MapTest mapTest;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "start_node_id", nullable = false)
-    private NodeTest startNodeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_saved_searches_user_test"))
+    private UserTest userId;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "end_node_id", nullable = false)
-    private NodeTest endNodeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_node_id", foreignKey = @ForeignKey(name = "fk_saved_searches_node_test"))
+    private NodeTest targetNode;
 
-    @Column(name = "distance", nullable = false)
-    private Double distance;
+    @Column(name = "keyword", nullable = false, length = 100)
+    private String keyword;
 
-    @Column(name = "direction", length = 50)
-    private String direction;
-
-    @Column(name = "instruction")
-    private String instruction;
+    @Column(name = "searched_at")
+    private Timestamp searchedAt;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

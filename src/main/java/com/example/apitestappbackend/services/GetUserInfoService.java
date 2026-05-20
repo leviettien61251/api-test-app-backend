@@ -5,7 +5,7 @@ import com.example.apitestappbackend.DTO.GetUserInfo.GetUserInfoRequest;
 import com.example.apitestappbackend.DTO.GetUserInfo.GetUserInfoResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.GetUserInfo;
-import com.example.apitestappbackend.models.UserTest;
+import com.example.apitestappbackend.models.hospitaldb.UserTest;
 import com.example.apitestappbackend.repository.GetUserInfoRepository;
 import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;

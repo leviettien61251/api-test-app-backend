@@ -13,7 +13,7 @@ import com.example.apitestappbackend.DTO.WardTest.WardTestData;
 import com.example.apitestappbackend.DTO.WardTest.WardTestRequest;
 import com.example.apitestappbackend.DTO.WardTest.WardTestResponse;
 import com.example.apitestappbackend.ResponseCode;
-import com.example.apitestappbackend.models.*;
+import com.example.apitestappbackend.models.hospitaldb.*;
 import com.example.apitestappbackend.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,7 @@
 package com.example.apitestappbackend.repository;
 
-import com.example.apitestappbackend.models.MapTest;
+import com.example.apitestappbackend.models.hospitaldb.MapTest;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
