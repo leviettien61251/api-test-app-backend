@@ -1,5 +1,6 @@
 package com.example.apitestappbackend.services;
 
+import com.example.apitestappbackend.DTO.MapTest.MapMetaData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
 import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
@@ -269,9 +270,11 @@ public class MapTestService {
         }
     }
 
-    public WardTestResponse postWardTest(WardTestRequest request) {
+    public WardTestResponse insertWardTest(WardTestRequest request) {
         try {
-            if (request == null || request.getMapNodeId() == null || request.getName() == null || request.getName().trim().isBlank()) {
+            if (request == null
+                    || request.getMapNodeId() == null || request.getName() == null || request.getWardStatus() == null
+                    || request.getName().trim().isBlank() || request.getWardStatus().trim().isBlank()) {
                 return WardTestResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
                         .status("fail")
@@ -280,7 +283,24 @@ public class MapTestService {
                         .usedInTest(false)
                         .build();
             }
-
+            if(request.getName().contains(";") || request.getName().contains(",") || request.getName().contains("'")){
+                return WardTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_TYPE.getCode())
+                        .message(ResponseCode.INVALID_TYPE.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+            if(request.getWardStatus().contains(";") || request.getWardStatus().contains(",") || request.getWardStatus().contains("'")){
+                return WardTestResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.INVALID_TYPE.getCode())
+                        .message(ResponseCode.INVALID_TYPE.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
             NodeTest nodeTest = nodeTestRepository.findById(request.getMapNodeId()).orElse(null);
             if (nodeTest == null) {
                 return WardTestResponse.builder()
@@ -642,16 +662,6 @@ public class MapTestService {
         }
     }
 
-    public StepTestResponse getEdges() {
-        return StepTestResponse.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()))
-                .status("fail")
-                .code(ResponseCode.MISSING_PARAM.getCode())
-                .message("Thiếu floor_id")
-                .usedInTest(false)
-                .build();
-    }
-
     public StepTestResponse getEdges(List<String> floorIds) {
         try {
             if (floorIds == null || floorIds.isEmpty() || floorIds.size() > 1 || floorIds.get(0) == null) {
@@ -794,5 +804,60 @@ public class MapTestService {
                     .build();
         }
     }
+
+    public MapTestResponse getMeta(List<String> floorIds) {
+        try {
+            if (floorIds == null || floorIds.isEmpty() || floorIds.size() > 1 || floorIds.get(0) == null || floorIds.get(0).isBlank()) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu floor_id");
+            }
+
+            String floorIdValue = floorIds.get(0).trim();
+            double floorIdNumber;
+            try {
+                floorIdNumber = Double.parseDouble(floorIdValue);
+            } catch (NumberFormatException e) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_TYPE, "floor_id không hợp lệ hoặc quá lớn");
+            }
+
+            if (Double.isNaN(floorIdNumber)
+                    || Double.isInfinite(floorIdNumber)
+                    || floorIdNumber > Integer.MAX_VALUE
+                    || floorIdNumber < 0) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_TYPE, "floor_id không hợp lệ hoặc quá lớn");
+            }
+
+            Integer floorId = (int) floorIdNumber;
+            MapTest mapTest = mapTestRepository.findById(floorId).orElse(null);
+            if (mapTest == null) {
+                return buildMapTestFailResponse(ResponseCode.FLOOR_NOT_FOUND, "Tầng không tồn tại");
+            }
+
+            if (mapTest.getScaleX() == null
+                    || mapTest.getScaleY() == null
+                    || mapTest.getScaleX() <= 0
+                    || mapTest.getScaleY() <= 0) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_VALUE, "Thông số tỷ lệ không hợp lệ");
+            }
+
+            return MapTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message("Lấy meta thành công")
+                    .data(new MapMetaData(
+                            mapTest.getBuildingCode(),
+                            mapTest.getBuildingName(),
+                            mapTest.getImageUrl(),
+                            mapTest.getScaleX(),
+                            mapTest.getScaleY()
+                    ))
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when get map meta: ", e);
+            return buildMapTestFailResponse(ResponseCode.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR.getMessage());
+        }
+    }
+
 
 }

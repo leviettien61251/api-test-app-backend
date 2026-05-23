@@ -87,6 +87,15 @@ public class MapTestController {
                 .body(res);
     }
 
+    @GetMapping("/map/meta")
+    public HttpEntity<MapTestResponse> getMeta(@RequestParam MultiValueMap<String, String> queryParams) {
+        MapTestResponse res = mapTestService.getMeta(queryParams.get("floor_id"));
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(res);
+    }
+
     @PostMapping("/map/search")
     public HttpEntity<SavedSearchResponse> postSavedSearch(@RequestBody SavedSearchRequest request) {
         SavedSearchResponse res = mapTestService.postSavedSearch(request);
@@ -100,7 +109,7 @@ public class MapTestController {
 
     @PostMapping("/map/insert-ward")
     public HttpEntity<WardTestResponse> postWardTest(@RequestBody WardTestRequest request) {
-        WardTestResponse res = mapTestService.postWardTest(request);
+        WardTestResponse res = mapTestService.insertWardTest(request);
         HttpStatus status = res.getStatus().equals("success")
                 ? HttpStatus.CREATED
                 : HttpStatus.BAD_REQUEST;

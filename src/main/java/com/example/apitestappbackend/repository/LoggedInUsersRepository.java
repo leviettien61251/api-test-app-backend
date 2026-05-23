@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 public interface LoggedInUsersRepository extends JpaRepository<LoggedInUsers, String> {
     boolean existsByPhoneNumber(String phoneNumber);
 
+    void deleteByPhoneNumber(String phoneNumber);
+
     boolean existsByPassword(String password);
 
     boolean existsByPhoneNumberAndPassword(String phoneNumber, String password);

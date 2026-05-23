@@ -241,6 +241,59 @@ public class SetAvatarScenarioDbTest {
     }
 
     @Test
+    @DisplayName("Testcase 6.1: Missing avatar URL - Should FAIL (MISSING_PARAM)")
+    void testSetAvatarWithMissingAvatarUrl() {
+        SetAvatarRequest request = new SetAvatarRequest(" ", VALID_PHONE);
+
+        SetAvatarResponse response = setAvatarService.setAvatar(request);
+
+        assertNotNull(response);
+        assertEquals("fail", response.getStatus());
+        assertEquals(ResponseCode.MISSING_PARAM.getCode(), response.getCode());
+        assertEquals(0, setAvatarRepository.findAll().size());
+    }
+
+    @Test
+    @DisplayName("Testcase 6.1.1: Null avatar URL - Should FAIL (MISSING_PARAM)")
+    void testSetAvatarWithNullAvatarUrl() {
+        SetAvatarRequest request = new SetAvatarRequest(null, VALID_PHONE);
+
+        SetAvatarResponse response = setAvatarService.setAvatar(request);
+
+        assertNotNull(response);
+        assertEquals("fail", response.getStatus());
+        assertEquals(ResponseCode.MISSING_PARAM.getCode(), response.getCode());
+        assertEquals(0, setAvatarRepository.findAll().size());
+    }
+
+    @Test
+    @DisplayName("Testcase 6.2: Invalid avatar URL - Should FAIL (INVALID_VALUE)")
+    void testSetAvatarWithInvalidAvatarUrl() {
+        SetAvatarRequest request = new SetAvatarRequest("avatar.png", VALID_PHONE);
+
+        SetAvatarResponse response = setAvatarService.setAvatar(request);
+
+        assertNotNull(response);
+        assertEquals("fail", response.getStatus());
+        assertEquals(ResponseCode.INVALID_VALUE.getCode(), response.getCode());
+        assertEquals(0, setAvatarRepository.findAll().size());
+    }
+
+    @Test
+    @DisplayName("Testcase 6.3: Valid phone but user does not exist - Should FAIL (USER_NOT_FOUND)")
+    void testSetAvatarWithMissingUser() {
+        SetAvatarRequest request = new SetAvatarRequest(VALID_AVATAR_URL, VALID_PHONE);
+
+        SetAvatarResponse response = setAvatarService.setAvatar(request);
+
+        assertNotNull(response);
+        assertEquals("fail", response.getStatus());
+        assertEquals(ResponseCode.USER_NOT_FOUND.getCode(), response.getCode());
+        assertEquals(ResponseCode.USER_NOT_FOUND.getMessage(), response.getMessage());
+        assertEquals(0, setAvatarRepository.findAll().size());
+    }
+
+    @Test
     @DisplayName("Testcase 7: Multiple SetAvatar calls for different logged-in users")
     void testMultipleSetAvatarCallsForDifferentLoggedInUsers() {
         // Arrange - Create two different users with logged-in records

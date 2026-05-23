@@ -8,14 +8,12 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.sql.Timestamp;
-import java.util.List;
-
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MapTestResponse extends Response {
-    private List<?> data;
+    private Object data;
     private Timestamp timestamp;
     private Boolean usedInTest;
 }
