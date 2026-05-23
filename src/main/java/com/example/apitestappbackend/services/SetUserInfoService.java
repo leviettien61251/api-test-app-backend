@@ -137,6 +137,17 @@ public class SetUserInfoService {
                         .build();
 
             }
+            UserTest newUT__ = userTestRepository.findByPhoneNumber(phoneNumber).orElse(null);
+            if (newUT__ == null) {
+                return SetUserInfoResponse.builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.USER_NOT_FOUND.getCode())
+                        .message(ResponseCode.USER_NOT_FOUND.getMessage())
+                        .usedInTest(false)
+                        .createdAt(new Timestamp(System.currentTimeMillis()))
+                        .build();
+            }
             if (!isUserLoggedInWithPhoneNumber(phoneNumber)) {
                 return SetUserInfoResponse.builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))

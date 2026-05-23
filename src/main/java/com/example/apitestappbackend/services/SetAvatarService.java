@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -42,12 +44,28 @@ public class SetAvatarService {
         return phoneNumber != null && phoneNumber.matches(regexPhoneNumber);
     }
 
+    private boolean isAvatarUrlValid(String avatarUrl) {
+        try {
+            URI uri = new URI(avatarUrl);
+            String scheme = uri.getScheme();
+            return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))
+                    && uri.getHost() != null
+                    && !uri.getHost().isBlank();
+        } catch (URISyntaxException e) {
+            return false;
+        }
+    }
+
     public SetAvatarResponse setAvatar(SetAvatarRequest request) {
         SetAvatar savedS;
 
         try {
 
-            if (request.getPhoneNumber().trim().isBlank()) {
+            if (request == null
+                    || request.getPhoneNumber() == null
+                    || request.getPhoneNumber().isBlank()
+                    || request.getAvatarUrl() == null
+                    || request.getAvatarUrl().isBlank()) {
                 return SetAvatarResponse.builder()
                         .status("fail")
                         .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -57,7 +75,10 @@ public class SetAvatarService {
                         .build();
             }
 
-            if (!isPhoneNumberValid(request.getPhoneNumber().trim())) {
+            String phoneNumber = request.getPhoneNumber().trim();
+            String avatarUrl = request.getAvatarUrl().trim();
+
+            if (!isPhoneNumberValid(phoneNumber) || !isAvatarUrlValid(avatarUrl)) {
                 return SetAvatarResponse.builder()
                         .status("fail")
                         .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -67,7 +88,18 @@ public class SetAvatarService {
                         .build();
             }
 
-            if (!isUserLoggedInWithPhoneNumber(request.getPhoneNumber().trim())) {
+            UserTest newUT = userTestRepository.findByPhoneNumber(phoneNumber).orElse(null);
+            if (newUT == null) {
+                return SetAvatarResponse.builder()
+                        .status("fail")
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.USER_NOT_FOUND.getCode())
+                        .message(ResponseCode.USER_NOT_FOUND.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+
+            if (!isUserLoggedInWithPhoneNumber(phoneNumber)) {
                 return SetAvatarResponse.builder()
                         .status("fail")
                         .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -76,10 +108,10 @@ public class SetAvatarService {
                         .usedInTest(false)
                         .build();
             }
-            log.error("Set avatar " + request.getPhoneNumber().trim() + " " + request.getAvatarUrl().trim());
+            log.error("Set avatar " + phoneNumber + " " + avatarUrl);
             SetAvatar s = new SetAvatar();
-            s.setPhoneNumber(request.getPhoneNumber().trim());
-            s.setAvatarUrlInput(request.getAvatarUrl().trim());
+            s.setPhoneNumber(phoneNumber);
+            s.setAvatarUrlInput(avatarUrl);
             s.setTimeStamp(new Timestamp(System.currentTimeMillis()));
             s.setStatus("success");
             s.setCode(ResponseCode.SUCCESS.getCode());
@@ -87,9 +119,6 @@ public class SetAvatarService {
             s.setUsedInTest(false);
             s.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
-            UserTest newUT = userTestRepository.findByPhoneNumber(s.getPhoneNumber()).orElseThrow(
-                    () -> new IllegalArgumentException("User with phone number: " + s.getPhoneNumber() + " does not exist!")
-            );
             newUT.setAvatar(s.getAvatarUrlInput());
 
             savedS = setAvatarRepository.save(s);

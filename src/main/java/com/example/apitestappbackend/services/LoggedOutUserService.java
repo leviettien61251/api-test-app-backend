@@ -5,10 +5,12 @@ import com.example.apitestappbackend.DTO.LogoutTest.LoggedOutUserResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedOutUser;
 import com.example.apitestappbackend.models.hospitaldb.UserTest;
+import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.LoggedOutUserRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -18,10 +20,14 @@ import java.util.List;
 @Service
 public class LoggedOutUserService {
     private final LoggedOutUserRepository loggedOutUserRepository;
+    private final LoggedInUsersRepository loggedInUsersRepository;
     private final UserTestRepository userTestRepository;
 
-    public LoggedOutUserService(LoggedOutUserRepository loggedOutUserRepository, UserTestRepository userTestRepository) {
+    public LoggedOutUserService(LoggedOutUserRepository loggedOutUserRepository,
+                                LoggedInUsersRepository loggedInUsersRepository,
+                                UserTestRepository userTestRepository) {
         this.loggedOutUserRepository = loggedOutUserRepository;
+        this.loggedInUsersRepository = loggedInUsersRepository;
         this.userTestRepository = userTestRepository;
     }
 
@@ -89,13 +95,12 @@ public class LoggedOutUserService {
         log.info("Completed logout process");
     }
 
+    @Transactional
     public LoggedOutUserResponse logout(String authHeader) {
         LoggedOutUser savedLOU;
-        String token = authHeader.substring(7); // remove "Bearer ";
-
 
         try {
-            if (!authHeader.startsWith("Bearer ")) {
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 return LoggedOutUserResponse
                         .builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -105,8 +110,21 @@ public class LoggedOutUserService {
                         .usedInTest(false)
                         .build();
             }
+
+            String token = authHeader.substring(7).trim(); // remove "Bearer "
+            if (token.isBlank()) {
+                return LoggedOutUserResponse
+                        .builder()
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .status("fail")
+                        .code(ResponseCode.TOKEN_INVALID.getCode())
+                        .message(ResponseCode.TOKEN_INVALID.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+
             if (!isTokenValid(token)) {
-                log.error("Invalid token: {}", token);
+                log.error("Invalid token received during logout");
                 return LoggedOutUserResponse
                         .builder()
                         .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -121,8 +139,8 @@ public class LoggedOutUserService {
                     .orElseThrow(
                             () -> new IllegalArgumentException("User with token: " + token + "does not exist!")
                     );
-            ut.setToken("");
-            userTestRepository.save(ut);
+            userTestRepository.clearTokenInfo(ut.getPhoneNumber().trim());
+            loggedInUsersRepository.deleteByPhoneNumber(ut.getPhoneNumber().trim());
 
             LoggedOutUser l = new LoggedOutUser();
             l.setPhoneNumber(ut.getPhoneNumber().trim());

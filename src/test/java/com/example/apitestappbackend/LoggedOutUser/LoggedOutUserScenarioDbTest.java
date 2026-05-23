@@ -2,8 +2,10 @@ package com.example.apitestappbackend.LoggedOutUser;
 
 import com.example.apitestappbackend.DTO.LogoutTest.LoggedOutUserResponse;
 import com.example.apitestappbackend.ResponseCode;
+import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.models.LoggedOutUser;
 import com.example.apitestappbackend.models.hospitaldb.UserTest;
+import com.example.apitestappbackend.repository.LoggedInUsersRepository;
 import com.example.apitestappbackend.repository.LoggedOutUserRepository;
 import com.example.apitestappbackend.repository.UserTestRepository;
 import com.example.apitestappbackend.services.LoggedOutUserService;
@@ -31,6 +33,9 @@ public class LoggedOutUserScenarioDbTest {
     private LoggedOutUserRepository loggedOutUserRepository;
 
     @Autowired
+    private LoggedInUsersRepository loggedInUsersRepository;
+
+    @Autowired
     private UserTestRepository userTestRepository;
 
     private static final String VALID_PHONE = "0901234567";
@@ -45,6 +50,7 @@ public class LoggedOutUserScenarioDbTest {
     void setUp() {
         // Clear all records before each test
         loggedOutUserRepository.deleteAll();
+        loggedInUsersRepository.deleteAll();
         userTestRepository.deleteAll();
     }
 
@@ -57,6 +63,20 @@ public class LoggedOutUserScenarioDbTest {
                 .tokenExpiresAt(Timestamp.from(Instant.now().plusSeconds(3600)))
                 .build();
         return userTestRepository.save(user);
+    }
+
+    private LoggedInUsers createAndSaveLoggedInUser(String phoneNumber, String password, String token) {
+        LoggedInUsers loggedInUser = new LoggedInUsers();
+        loggedInUser.setPhoneNumber(phoneNumber);
+        loggedInUser.setPassword(password);
+        loggedInUser.setToken(token);
+        loggedInUser.setRefreshToken("refresh_token_" + token);
+        loggedInUser.setTokenExpiresAt(Timestamp.from(Instant.now().plusSeconds(3600)));
+        loggedInUser.setLoginStatus("success");
+        loggedInUser.setCode(ResponseCode.SUCCESS.getCode());
+        loggedInUser.setMessage(ResponseCode.SUCCESS.getMessage());
+        loggedInUser.setUsedInTest(false);
+        return loggedInUsersRepository.save(loggedInUser);
     }
 
     private LoggedOutUser createAndSaveLoggedOutUser(String phoneNumber, String invalidatedToken) {
@@ -77,6 +97,7 @@ public class LoggedOutUserScenarioDbTest {
     void testLogoutWithValidToken() {
         // Arrange - Create a user with valid token
         createAndSaveUserTest(VALID_PHONE, VALID_PASSWORD, VALID_TOKEN);
+        createAndSaveLoggedInUser(VALID_PHONE, VALID_PASSWORD, VALID_TOKEN);
 
         // Verify user exists with token
         assertTrue(userTestRepository.existsByToken(VALID_TOKEN),
@@ -108,6 +129,10 @@ public class LoggedOutUserScenarioDbTest {
         UserTest savedUser = userTestRepository.findByPhoneNumber(VALID_PHONE).orElse(null);
         assertNotNull(savedUser, "User should still exist in user_test table");
         assertEquals("", savedUser.getToken(), "Token should be cleared in user_test table");
+        assertEquals("", savedUser.getRefreshToken(), "Refresh token should be cleared in user_test table");
+        assertNull(savedUser.getTokenExpiresAt(), "Token expiry should be cleared in user_test table");
+        assertFalse(loggedInUsersRepository.existsByPhoneNumber(VALID_PHONE),
+                "Logged-in record should be removed after logout");
     }
 
     @Test
@@ -224,10 +249,13 @@ public class LoggedOutUserScenarioDbTest {
         // Arrange - Create a user with valid token
         createAndSaveUserTest(VALID_PHONE, VALID_PASSWORD, VALID_TOKEN);
 
-        // Act & Assert - Should throw NullPointerException when processing null
-        assertThrows(NullPointerException.class, () -> {
-            loggedOutUserService.logout(null);
-        }, "Should throw NullPointerException for null auth header");
+        LoggedOutUserResponse response = loggedOutUserService.logout(null);
+
+        assertNotNull(response, "Response should not be null");
+        assertEquals("fail", response.getStatus(), "Status should be fail");
+        assertEquals(ResponseCode.TOKEN_INVALID.getCode(), response.getCode(),
+                "Response code should be 3001 (TOKEN_INVALID)");
+        assertEquals(ResponseCode.TOKEN_INVALID.getMessage(), response.getMessage());
 
         // Verify record is NOT saved
         assertFalse(loggedOutUserRepository.existsByInvalidatedToken(VALID_TOKEN),
@@ -323,13 +351,7 @@ public class LoggedOutUserScenarioDbTest {
 
         // Assert - Should handle whitespace correctly
         assertNotNull(response, "Response should not be null");
-        // The service extracts token from position 7 onwards, so whitespace at the end is part of token
-        // This test validates the actual behavior
-        if (response.getStatus().equals("success")) {
-            assertEquals(ResponseCode.SUCCESS.getCode(), response.getCode());
-        } else {
-            // If fails, it should be because token with whitespace doesn't match
-            assertEquals(ResponseCode.TOKEN_INVALID.getCode(), response.getCode());
-        }
+        assertEquals("success", response.getStatus(), "Status should be success");
+        assertEquals(ResponseCode.SUCCESS.getCode(), response.getCode());
     }
 }

@@ -180,8 +180,6 @@ public class NodeTestService {
                 .build();
     }
 
-
-
     public NodeResponse getNodeTest(List<String> floorIds) {
         try {
             if (floorIds == null || floorIds.isEmpty() || floorIds.size() > 1 || floorIds.get(0) == null) {
