@@ -120,27 +120,27 @@ public class MapTestController {
     }
 
 
-    @DeleteMapping("/map/clean")
+    @DeleteMapping("/clean/map")
     public HttpEntity<String> cleanMapData() {
         return ResponseEntity.ok(mapTestService.cleanMapData());
     }
 
-    @DeleteMapping("/map/node/clean")
+    @DeleteMapping("/clean/map/node")
     public HttpEntity<String> cleanNodeData() {
         return ResponseEntity.ok(mapTestService.cleanNodeData());
     }
 
-    @DeleteMapping("/map/step/clean")
+    @DeleteMapping("/clean/map/step")
     public HttpEntity<String> cleanStepData() {
         return ResponseEntity.ok(mapTestService.cleanStepData());
     }
 
-    @DeleteMapping("/map/search/clean")
+    @DeleteMapping("/clean/map/search")
     public HttpEntity<String> cleanSearchData() {
         return ResponseEntity.ok(mapTestService.cleanSavedSearchData());
     }
 
-    @DeleteMapping("/map/ward/clean")
+    @DeleteMapping("/clean/map/ward")
     public HttpEntity<String> cleanWardData() {
         return ResponseEntity.ok(mapTestService.cleanWardData());
     }

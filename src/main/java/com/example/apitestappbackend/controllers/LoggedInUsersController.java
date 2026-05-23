@@ -2,6 +2,8 @@ package com.example.apitestappbackend.controllers;
 
 import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
 import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
+import com.example.apitestappbackend.DTO.RefreshToken.RefreshTokenRequest;
+import com.example.apitestappbackend.DTO.RefreshToken.RefreshTokenResponse;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.services.LoggedInUsersService;
 import com.example.apitestappbackend.services.UserTestService;
@@ -57,12 +59,25 @@ public class LoggedInUsersController {
                 .body(res);
     }
 
-    @DeleteMapping("/login/clean")
+    @PostMapping("/refresh-token")
+    public HttpEntity<RefreshTokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        RefreshTokenResponse res = loggedInUsersService.refreshToken(request);
+
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
+    @DeleteMapping("/clean/login")
     public HttpEntity<String> cleanLoginData() {
         return ResponseEntity.ok(loggedInUsersService.cleanLoginData());
     }
 
-    @DeleteMapping("/user-test/clean")
+    @DeleteMapping("/clean/user-test")
     public HttpEntity<String> cleanUserTestData() {
         return ResponseEntity.ok(userTestService.cleanUserTestData());
     }

@@ -23,6 +23,10 @@ public interface UserTestRepository extends JpaRepository<UserTest, String> {
 
     Optional<UserTest> findByToken(String token);
 
+    boolean existsByRefreshToken(String refreshToken);
+
+    Optional<UserTest> findByRefreshToken(String refreshToken);
+
     void deleteByPhoneNumberIn(Collection<String> phoneNumbers);
 
     @Modifying

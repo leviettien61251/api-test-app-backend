@@ -45,7 +45,7 @@ public class LoggedOutUserController {
 
     }
 
-    @DeleteMapping("/logout/clean")
+    @DeleteMapping("/clean/logout")
     public HttpEntity<String> cleanLogoutData() {
         return ResponseEntity.ok(loggedOutUserService.cleanLogoutData());
     }
