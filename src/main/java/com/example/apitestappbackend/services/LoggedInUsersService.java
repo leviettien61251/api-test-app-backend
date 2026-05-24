@@ -71,24 +71,8 @@ public class LoggedInUsersService {
 
     @Transactional
     public String cleanLoginData() {
-        List<LoggedInUsers> loggedInUsers = loggedInUsersRepository.findAll();
-        if (loggedInUsers.isEmpty()) {
-            return "No login data to clean";
-        }
-
-        Set<String> phoneNumbers = new LinkedHashSet<>();
-        for (LoggedInUsers loggedInUser : loggedInUsers) {
-            if (loggedInUser.getPhoneNumber() != null && !loggedInUser.getPhoneNumber().isBlank()) {
-                phoneNumbers.add(loggedInUser.getPhoneNumber().trim());
-            }
-        }
-
-        if (!phoneNumbers.isEmpty()) {
-            userTestRepository.deleteByPhoneNumberIn(phoneNumbers);
-        }
-
         loggedInUsersRepository.deleteAllInBatch();
-        return "Successfully cleaned login data for " + phoneNumbers.size() + " user(s)";
+        return "Successfully cleaned login data for ";
     }
 
     public LoggedInUsers findUserByPhoneNumber(String phoneNumber) {

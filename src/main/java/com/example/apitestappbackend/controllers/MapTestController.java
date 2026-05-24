@@ -119,7 +119,6 @@ public class MapTestController {
                 .body(res);
     }
 
-
     @DeleteMapping("/clean/map")
     public HttpEntity<String> cleanMapData() {
         return ResponseEntity.ok(mapTestService.cleanMapData());
