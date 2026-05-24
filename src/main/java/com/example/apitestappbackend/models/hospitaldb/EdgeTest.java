@@ -1,6 +1,9 @@
 package com.example.apitestappbackend.models.hospitaldb;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,17 +12,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "route_tests")
+@Table(name = "edge_tests")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RouteTest {
+public class EdgeTest {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(name = "route_id", columnDefinition = "TEXT")
-    private String routeId;
+    @Column(name = "edge_id", columnDefinition = "TEXT")
+    private String edgeId;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

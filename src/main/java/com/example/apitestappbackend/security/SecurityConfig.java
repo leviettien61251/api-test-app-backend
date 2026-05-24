@@ -24,11 +24,19 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/signup").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/refresh-token").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/signup").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/refresh-token").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/map/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/map/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/map/**").permitAll()
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/map/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/**").permitAll()
+                                .requestMatchers(HttpMethod.DELETE, "/api/v1/**").permitAll()
 //                        .requestMatchers(HttpMethod.DELETE, "/api/v1/clean/**").permitAll()
-                        .anyRequest().authenticated()
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) ->
