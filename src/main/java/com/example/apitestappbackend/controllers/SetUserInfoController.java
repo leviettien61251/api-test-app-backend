@@ -49,7 +49,7 @@ public class SetUserInfoController {
                 .body(res);
     }
 
-    @DeleteMapping("/set-user-info/clean")
+    @DeleteMapping("/clean/set-user-info")
     public HttpEntity<String> cleanSetUserInfoData() {
         return ResponseEntity.ok(setUserInfoService.cleanSetUserInfoData());
     }

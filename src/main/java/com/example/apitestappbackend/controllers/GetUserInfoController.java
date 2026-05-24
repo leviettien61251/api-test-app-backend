@@ -31,7 +31,7 @@ public class GetUserInfoController {
                 .body(res);
     }
 
-    @DeleteMapping("get-user-info/clean")
+    @DeleteMapping("/clean/get-user-info")
     public HttpEntity<String> cleanGetUserInfo() {
         return ResponseEntity.ok(getUserInfoService.cleanUserInfoData());
     }

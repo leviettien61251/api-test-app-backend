@@ -41,7 +41,7 @@ public class PasswordChangedController {
                 .body(res);
     }
 
-    @DeleteMapping("/change-password/clean")
+    @DeleteMapping("/clean/change-password")
     public HttpEntity<String> cleanChangePasswordData() {
         return ResponseEntity.ok(passwordChangedService.cleanChangePasswordData());
     }

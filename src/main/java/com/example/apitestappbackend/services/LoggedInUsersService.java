@@ -3,6 +3,8 @@ package com.example.apitestappbackend.services;
 import com.example.apitestappbackend.DTO.LoginTest.LoginData;
 import com.example.apitestappbackend.DTO.LoginTest.LoginRequest;
 import com.example.apitestappbackend.DTO.LoginTest.LoginResponse;
+import com.example.apitestappbackend.DTO.RefreshToken.RefreshTokenRequest;
+import com.example.apitestappbackend.DTO.RefreshToken.RefreshTokenResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.LoggedInUsers;
 import com.example.apitestappbackend.models.SignupNotYetLogin;
@@ -69,24 +71,8 @@ public class LoggedInUsersService {
 
     @Transactional
     public String cleanLoginData() {
-        List<LoggedInUsers> loggedInUsers = loggedInUsersRepository.findAll();
-        if (loggedInUsers.isEmpty()) {
-            return "No login data to clean";
-        }
-
-        Set<String> phoneNumbers = new LinkedHashSet<>();
-        for (LoggedInUsers loggedInUser : loggedInUsers) {
-            if (loggedInUser.getPhoneNumber() != null && !loggedInUser.getPhoneNumber().isBlank()) {
-                phoneNumbers.add(loggedInUser.getPhoneNumber().trim());
-            }
-        }
-
-        if (!phoneNumbers.isEmpty()) {
-            userTestRepository.deleteByPhoneNumberIn(phoneNumbers);
-        }
-
         loggedInUsersRepository.deleteAllInBatch();
-        return "Successfully cleaned login data for " + phoneNumbers.size() + " user(s)";
+        return "Successfully cleaned login data for ";
     }
 
     public LoggedInUsers findUserByPhoneNumber(String phoneNumber) {
@@ -433,5 +419,88 @@ public class LoggedInUsersService {
         }
 
 
+    }
+
+    @Transactional
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+        try {
+            if (request == null || request.getRefreshToken() == null || request.getRefreshToken().isBlank()) {
+                return RefreshTokenResponse.builder()
+                        .status("fail")
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.MISSING_PARAM.getCode())
+                        .message("Thiếu trường refresh_token")
+                        .usedInTest(false)
+                        .build();
+            }
+
+            String oldRefreshToken = request.getRefreshToken().trim();
+            if (!jwtUtil.validateToken(oldRefreshToken) || !userTestRepository.existsByRefreshToken(oldRefreshToken)) {
+                return RefreshTokenResponse.builder()
+                        .status("fail")
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.TOKEN_INVALID.getCode())
+                        .message(ResponseCode.TOKEN_INVALID.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+
+            UserTest user = userTestRepository.findByRefreshToken(oldRefreshToken)
+                    .orElseThrow(() -> new IllegalArgumentException("Refresh token does not exist"));
+            String phoneNumberFromToken = jwtUtil.extractPhoneNumber(oldRefreshToken);
+            if (!user.getPhoneNumber().equals(phoneNumberFromToken)) {
+                return RefreshTokenResponse.builder()
+                        .status("fail")
+                        .timestamp(new Timestamp(System.currentTimeMillis()))
+                        .code(ResponseCode.TOKEN_INVALID.getCode())
+                        .message(ResponseCode.TOKEN_INVALID.getMessage())
+                        .usedInTest(false)
+                        .build();
+            }
+
+            String token = jwtUtil.generateToken(user.getPhoneNumber());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getPhoneNumber());
+            Timestamp tokenExpiresAt = jwtUtil.getExpiration(token);
+
+            user.setToken(token);
+            user.setRefreshToken(refreshToken);
+            user.setTokenExpiresAt(tokenExpiresAt);
+            userTestRepository.save(user);
+
+            LoggedInUsers loggedInUser = loggedInUsersRepository.findLoggedInUsersByPhoneNumber(user.getPhoneNumber());
+            if (loggedInUser == null) {
+                loggedInUser = new LoggedInUsers();
+                loggedInUser.setPhoneNumber(user.getPhoneNumber());
+                loggedInUser.setPassword(user.getPassword());
+                loggedInUser.setLoginStatus("success");
+                loggedInUser.setUsedInTest(false);
+                loggedInUser.setCode(ResponseCode.SUCCESS.getCode());
+                loggedInUser.setMessage(ResponseCode.SUCCESS.getMessage());
+            }
+            loggedInUser.setToken(token);
+            loggedInUser.setRefreshToken(refreshToken);
+            loggedInUser.setTokenExpiresAt(tokenExpiresAt);
+            loggedInUsersRepository.save(loggedInUser);
+
+            return RefreshTokenResponse.builder()
+                    .status("success")
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .token(token)
+                    .refreshToken(refreshToken)
+                    .tokenExpiresAt(tokenExpiresAt)
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message(ResponseCode.SUCCESS.getMessage())
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            log.error("Refresh token error: ", e);
+            return RefreshTokenResponse.builder()
+                    .status("fail")
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .code(ResponseCode.INTERNAL_SERVER_ERROR.getCode())
+                    .message(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
+                    .usedInTest(false)
+                    .build();
+        }
     }
 }
