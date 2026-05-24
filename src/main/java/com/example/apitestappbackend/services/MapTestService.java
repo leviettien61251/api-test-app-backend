@@ -4,6 +4,7 @@ import com.example.apitestappbackend.DTO.MapTest.MapMetaData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
 import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
+import com.example.apitestappbackend.DTO.NodeTest.BeaconData;
 import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchRequest;
 import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchResponse;
 import com.example.apitestappbackend.DTO.StepTest.StepEdgeData;
@@ -352,6 +353,76 @@ public class MapTestService {
                     .message(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
                     .usedInTest(false)
                     .build();
+        }
+    }
+
+    public WardTestResponse getWard() {
+        try {
+            List<WardTestData> wards = wardTestRepository.findAll()
+                    .stream()
+                    .map(ward -> new WardTestData(
+                            ward.getId(),
+                            ward.getName(),
+                            ward.getMapNode().getId(),
+                            ward.getMapNode().getMapTest().getId(),
+                            ward.getWardStatus()
+                    ))
+                    .toList();
+
+            return WardTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message(ResponseCode.SUCCESS.getMessage())
+                    .data(wards)
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when get ward test: ", e);
+            return WardTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("fail")
+                    .code(ResponseCode.INTERNAL_SERVER_ERROR.getCode())
+                    .message(ResponseCode.INTERNAL_SERVER_ERROR.getMessage())
+                    .usedInTest(false)
+                    .build();
+        }
+    }
+
+    public MapTestResponse getLandMark() {
+        return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu floor_id");
+    }
+
+    public MapTestResponse getLandMark(List<String> floorIds) {
+        try {
+            if (floorIds == null || floorIds.isEmpty() || floorIds.size() > 1 || floorIds.get(0) == null || floorIds.get(0).isBlank()) {
+                return buildMapTestFailResponse(ResponseCode.MISSING_PARAM, "Thiếu floor_id");
+            }
+
+            Integer floorId;
+            try {
+                floorId = Integer.parseInt(floorIds.get(0).trim());
+            } catch (NumberFormatException e) {
+                return buildMapTestFailResponse(ResponseCode.INVALID_TYPE, "floor_id không hợp lệ");
+            }
+
+            if (!mapTestRepository.existsById(floorId)) {
+                return buildMapTestFailResponse(ResponseCode.FLOOR_NOT_FOUND, "Tầng không tồn tại");
+            }
+
+            List<BeaconData> landmarks = nodeTestRepository.findLandmarksByMapId(floorId);
+
+            return MapTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message("Lấy landmarks thành công")
+                    .data(landmarks)
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when get beacon: ", e);
+            return buildMapTestFailResponse(ResponseCode.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR.getMessage());
         }
     }
 
@@ -858,6 +929,7 @@ public class MapTestService {
             return buildMapTestFailResponse(ResponseCode.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR.getMessage());
         }
     }
+
 
 
 }

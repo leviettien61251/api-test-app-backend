@@ -96,6 +96,17 @@ public class MapTestController {
                 .body(res);
     }
 
+    @GetMapping("/map/landmarks")
+    public HttpEntity<MapTestResponse> getBeacon(@RequestParam MultiValueMap<String, String> queryParams) {
+        MapTestResponse res = mapTestService.getLandMark(queryParams.get("floor_id"));
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
     @PostMapping("/map/search")
     public HttpEntity<SavedSearchResponse> postSavedSearch(@RequestBody SavedSearchRequest request) {
         SavedSearchResponse res = mapTestService.postSavedSearch(request);
@@ -112,6 +123,18 @@ public class MapTestController {
         WardTestResponse res = mapTestService.insertWardTest(request);
         HttpStatus status = res.getStatus().equals("success")
                 ? HttpStatus.CREATED
+                : HttpStatus.BAD_REQUEST;
+
+        return ResponseEntity
+                .status(status)
+                .body(res);
+    }
+
+    @GetMapping("/map/wards")
+    public HttpEntity<WardTestResponse> getWard() {
+        WardTestResponse res = mapTestService.getWard();
+        HttpStatus status = res.getStatus().equals("success")
+                ? HttpStatus.OK
                 : HttpStatus.BAD_REQUEST;
 
         return ResponseEntity

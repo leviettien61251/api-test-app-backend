@@ -9,17 +9,34 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "route_tests")
+@Table(name = "heatmap_data_tests")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class RouteTest {
+@NoArgsConstructor
+public class HeatMapDataTest {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "route_id", columnDefinition = "TEXT")
-    private String routeId;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "route_id", nullable = false, referencedColumnName = "route_id")
+    private RouteTest routeId;
+
+    @Column(name = "x")
+    private Double x;
+
+    @Column(name = "y")
+    private Double y;
+
+    @Column(name = "density_value")
+    private Double densityValue;
+
+    @Column(name = "radius")
+    private Double radius;
+
+    @Column(name = "status_message", columnDefinition = "TEXT")
+    private String statusMessage;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";

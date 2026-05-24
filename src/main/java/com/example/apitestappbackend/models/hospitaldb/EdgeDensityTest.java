@@ -9,17 +9,21 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "route_tests")
+@Table(name = "edge_density_tests")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class RouteTest {
+@NoArgsConstructor
+public class EdgeDensityTest {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "edge_id", nullable = false, referencedColumnName = "edge_id")
+    private EdgeTest edgeId;
 
-    @Column(name = "route_id", columnDefinition = "TEXT")
-    private String routeId;
+    @Column(name = "current_count")
+    private Integer currentCoutn;
+
+    @Column(name = "fill_percentage")
+    private String fillPercentage;
 
     @Column(length = 50, columnDefinition = "varchar(50)")
     private String status = "success";
