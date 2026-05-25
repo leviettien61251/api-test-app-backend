@@ -149,4 +149,9 @@ public class SetAvatarService {
         }
 
     }
+
+    public String cleanDataSetAvatar(){
+        setAvatarRepository.deleteAllInBatch();
+        return "Successfully cleaned set avatar data";
+    }
 }

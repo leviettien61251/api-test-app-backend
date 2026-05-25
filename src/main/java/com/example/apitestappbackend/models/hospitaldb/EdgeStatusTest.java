@@ -15,6 +15,9 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class EdgeStatusTest {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "edge_id", nullable = false, referencedColumnName = "edge_id")
     private EdgeTest edgeId;

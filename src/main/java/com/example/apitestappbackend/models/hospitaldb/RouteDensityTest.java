@@ -15,6 +15,9 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 public class RouteDensityTest {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "route_id", nullable = false, referencedColumnName = "route_id")
     private RouteTest routeId;

@@ -15,12 +15,15 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class EdgeDensityTest {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "edge_id", nullable = false, referencedColumnName = "edge_id")
     private EdgeTest edgeId;
 
     @Column(name = "current_count")
-    private Integer currentCoutn;
+    private Integer currentCount;
 
     @Column(name = "fill_percentage")
     private String fillPercentage;

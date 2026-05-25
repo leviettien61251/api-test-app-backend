@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface RouteTestRepository extends JpaRepository<RouteTest, Integer> {
     Optional<RouteTest> findByRouteId(String routeId);
+
+    boolean existsByRouteId(String routeId);
 }
