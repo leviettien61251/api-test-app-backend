@@ -1,20 +1,23 @@
 package com.example.apitestappbackend.controllers;
 
-import com.example.apitestappbackend.DTO.FlowTest.FlowAlertResponse;
-import com.example.apitestappbackend.DTO.FlowTest.FlowBottleneckResponse;
-import com.example.apitestappbackend.DTO.FlowTest.FlowDensityResponse;
-import com.example.apitestappbackend.DTO.FlowTest.FlowEdgeStatusResponse;
-import com.example.apitestappbackend.DTO.FlowTest.FlowHeatmapResponse;
+import com.example.apitestappbackend.DTO.BottleneckDataTest.BottleneckDataTestRequest;
+import com.example.apitestappbackend.DTO.BottleneckDataTest.BottleneckDataTestResponse;
+import com.example.apitestappbackend.DTO.FlowTest.*;
+import com.example.apitestappbackend.DTO.HeatmapDataTest.HeatmapDataTestRequest;
+import com.example.apitestappbackend.DTO.HeatmapDataTest.HeatmapDataTestResponse;
+import com.example.apitestappbackend.DTO.ObstacleTest.ObstacleTestRequest;
+import com.example.apitestappbackend.DTO.ObstacleTest.ObstacleTestResponse;
+import com.example.apitestappbackend.DTO.RouteDensityTest.RouteDensityTestRequest;
+import com.example.apitestappbackend.DTO.RouteDensityTest.RouteDensityTestResponse;
+import com.example.apitestappbackend.DTO.RouteTest.RouteTestRequest;
+import com.example.apitestappbackend.DTO.RouteTest.RouteTestResponse;
 import com.example.apitestappbackend.services.FlowTestService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -23,6 +26,61 @@ public class FlowTestController {
 
     public FlowTestController(FlowTestService flowTestService) {
         this.flowTestService = flowTestService;
+    }
+
+    @DeleteMapping("/clean/route")
+    public HttpEntity<String> cleanRouteData() {
+        return ResponseEntity.ok(flowTestService.cleanRouteTestData());
+    }
+
+    @DeleteMapping("/clean/route-density")
+    public HttpEntity<String> cleanRouteDensityData() {
+        return ResponseEntity.ok(flowTestService.cleanRouteDensityTestData());
+    }
+
+    @DeleteMapping("/clean/obstacle")
+    public HttpEntity<String> cleanObstacleData() {
+        return ResponseEntity.ok(flowTestService.cleanObstacleTestData());
+    }
+
+    @DeleteMapping("/clean/heatmap-data")
+    public HttpEntity<String> cleanHeatmapData() {
+        return ResponseEntity.ok(flowTestService.cleanHeatMapDataTestData());
+    }
+
+    @DeleteMapping("/clean/bottleneck-data")
+    public HttpEntity<String> cleanBottleneckData() {
+        return ResponseEntity.ok(flowTestService.cleanBottleneckDataTestData());
+    }
+
+    @PostMapping("/flow/insert-route")
+    public HttpEntity<RouteTestResponse> insertRouteTest(@RequestBody(required = false) RouteTestRequest request) {
+        RouteTestResponse res = flowTestService.insertRouteTest(request);
+        return ResponseEntity.status(res.getStatus().equals("success") ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @PostMapping("/flow/insert-route-density")
+    public HttpEntity<RouteDensityTestResponse> insertRouteDensityTest(@RequestBody(required = false) RouteDensityTestRequest request) {
+        RouteDensityTestResponse res = flowTestService.insertRouteDensityTest(request);
+        return ResponseEntity.status(res.getStatus().equals("success") ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @PostMapping("/flow/insert-obstacle")
+    public HttpEntity<ObstacleTestResponse> insertObstacleTest(@RequestBody(required = false) ObstacleTestRequest request) {
+        ObstacleTestResponse res = flowTestService.insertObstacleTest(request);
+        return ResponseEntity.status(res.getStatus().equals("success") ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @PostMapping("/flow/insert-heatmap-data")
+    public HttpEntity<HeatmapDataTestResponse> insertHeatmapDataTest(@RequestBody(required = false) HeatmapDataTestRequest request) {
+        HeatmapDataTestResponse res = flowTestService.insertHeatmapDataTest(request);
+        return ResponseEntity.status(res.getStatus().equals("success") ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @PostMapping("/flow/insert-bottleneck-data")
+    public HttpEntity<BottleneckDataTestResponse> insertBottleneckDataTest(@RequestBody(required = false) BottleneckDataTestRequest request) {
+        BottleneckDataTestResponse res = flowTestService.insertBottleneckDataTest(request);
+        return ResponseEntity.status(res.getStatus().equals("success") ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST).body(res);
     }
 
     @GetMapping("/flow/get_alerts")

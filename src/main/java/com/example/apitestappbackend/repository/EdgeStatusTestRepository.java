@@ -1,6 +1,5 @@
 package com.example.apitestappbackend.repository;
 
-import com.example.apitestappbackend.models.hospitaldb.EdgeTest;
 import com.example.apitestappbackend.models.hospitaldb.EdgeStatusTest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EdgeStatusTestRepository extends JpaRepository<EdgeStatusTest, EdgeTest> {
+public interface EdgeStatusTestRepository extends JpaRepository<EdgeStatusTest, Integer> {
     @Query("""
             SELECT es.edgeId.edgeId
             FROM EdgeStatusTest es
