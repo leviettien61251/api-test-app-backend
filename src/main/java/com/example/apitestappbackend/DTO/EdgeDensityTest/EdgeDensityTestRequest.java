@@ -1,4 +1,4 @@
-package com.example.apitestappbackend.DTO.FlowTest;
+package com.example.apitestappbackend.DTO.EdgeDensityTest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class    FlowEdgeStatusData {
+public class EdgeDensityTestRequest {
     @JsonProperty("edge_id")
-    private String edgeId;
+    private Object edgeId;
 
     @JsonProperty("current_count")
-    private Integer currentCount;
+    private Object currentCount;
 
     @JsonProperty("fill_percentage")
-    private String fillPercentage;
+    private Object fillPercentage;
 }
