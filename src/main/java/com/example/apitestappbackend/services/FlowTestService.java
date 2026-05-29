@@ -3,6 +3,15 @@ package com.example.apitestappbackend.services;
 import com.example.apitestappbackend.DTO.BottleneckDataTest.BottleneckDataTestData;
 import com.example.apitestappbackend.DTO.BottleneckDataTest.BottleneckDataTestRequest;
 import com.example.apitestappbackend.DTO.BottleneckDataTest.BottleneckDataTestResponse;
+import com.example.apitestappbackend.DTO.EdgeDensityTest.EdgeDensityTestData;
+import com.example.apitestappbackend.DTO.EdgeDensityTest.EdgeDensityTestRequest;
+import com.example.apitestappbackend.DTO.EdgeDensityTest.EdgeDensityTestResponse;
+import com.example.apitestappbackend.DTO.EdgeStatusTest.EdgeStatusTestData;
+import com.example.apitestappbackend.DTO.EdgeStatusTest.EdgeStatusTestRequest;
+import com.example.apitestappbackend.DTO.EdgeStatusTest.EdgeStatusTestResponse;
+import com.example.apitestappbackend.DTO.EdgeTest.EdgeTestData;
+import com.example.apitestappbackend.DTO.EdgeTest.EdgeTestRequest;
+import com.example.apitestappbackend.DTO.EdgeTest.EdgeTestResponse;
 import com.example.apitestappbackend.DTO.FlowTest.FlowAlertData;
 import com.example.apitestappbackend.DTO.FlowTest.FlowAlertResponse;
 import com.example.apitestappbackend.DTO.FlowTest.FlowBottleneckData;
@@ -19,6 +28,7 @@ import com.example.apitestappbackend.DTO.HeatmapDataTest.HeatmapDataTestResponse
 import com.example.apitestappbackend.DTO.ObstacleTest.ObstacleTestData;
 import com.example.apitestappbackend.DTO.ObstacleTest.ObstacleTestRequest;
 import com.example.apitestappbackend.DTO.ObstacleTest.ObstacleTestResponse;
+import com.example.apitestappbackend.DTO.ObstacleTest.ReportObstacleRequest;
 import com.example.apitestappbackend.DTO.RouteDensityTest.RouteDensityTestData;
 import com.example.apitestappbackend.DTO.RouteDensityTest.RouteDensityTestRequest;
 import com.example.apitestappbackend.DTO.RouteDensityTest.RouteDensityTestResponse;
@@ -28,6 +38,8 @@ import com.example.apitestappbackend.DTO.RouteTest.RouteTestResponse;
 import com.example.apitestappbackend.ResponseCode;
 import com.example.apitestappbackend.models.hospitaldb.BottlenecksDataTest;
 import com.example.apitestappbackend.models.hospitaldb.EdgeDensityTest;
+import com.example.apitestappbackend.models.hospitaldb.EdgeStatusTest;
+import com.example.apitestappbackend.models.hospitaldb.EdgeTest;
 import com.example.apitestappbackend.models.hospitaldb.HeatMapDataTest;
 import com.example.apitestappbackend.models.hospitaldb.ObstacleTest;
 import com.example.apitestappbackend.models.hospitaldb.RouteDensityTest;
@@ -201,6 +213,56 @@ public class FlowTestService {
         }
     }
 
+    public ObstacleTestResponse reportObstacle(String token, ReportObstacleRequest request) {
+        try {
+            if (token == null || token.trim().isBlank() || request == null
+                    || request.getRouteId() == null || request.getType() == null
+                    || request.getX() == null || request.getY() == null || request.getDescription() == null) {
+                return buildObstacleFailResponse(ResponseCode.MISSING_PARAM);
+            }
+
+            String routeId = parseRequiredString(request.getRouteId());
+            String type = parseRequiredString(request.getType());
+            Double x = parseDouble(request.getX());
+            Double y = parseDouble(request.getY());
+            String description = parseRequiredString(request.getDescription());
+            if (routeId == null || type == null || x == null || y == null || description == null) {
+                return buildObstacleFailResponse(ResponseCode.INVALID_TYPE);
+            }
+
+            RouteTest routeTest = findRouteOrNull(routeId);
+            if (routeTest == null) {
+                return buildObstacleFailResponse(ResponseCode.PATH_NOT_FOUND);
+            }
+
+            if (x < 0 || y < 0) {
+                return buildObstacleFailResponse(ResponseCode.INVALID_VALUE);
+            }
+
+            ObstacleTest obstacleTest = new ObstacleTest();
+            obstacleTest.setRouteId(routeTest);
+            obstacleTest.setType(type);
+            obstacleTest.setXCoordinate(x);
+            obstacleTest.setYCoordinate(y);
+            obstacleTest.setDescription(description);
+            obstacleTest.setObstacleStatus("ACTIVE");
+            setSuccessAudit(obstacleTest);
+
+            ObstacleTest saved = obstacleTestRepository.save(obstacleTest);
+            return ObstacleTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message(ResponseCode.SUCCESS.getMessage())
+                    .data(new ObstacleTestData(saved.getId(), saved.getRouteId().getRouteId(), saved.getType(),
+                            saved.getXCoordinate(), saved.getYCoordinate(), saved.getDescription(), saved.getObstacleStatus()))
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            return buildObstacleFailResponse(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     public HeatmapDataTestResponse insertHeatmapDataTest(HeatmapDataTestRequest request) {
         try {
             if (request == null) {
@@ -300,6 +362,126 @@ public class FlowTestService {
                     .build();
         } catch (Exception e) {
             return buildBottleneckDataFailResponse(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public EdgeTestResponse insertEdgeTest(EdgeTestRequest request) {
+        try {
+            if (request == null) {
+                return buildEdgeFailResponse(ResponseCode.MISSING_BODY);
+            }
+
+            if (request.getEdgeId() == null) {
+                return buildEdgeFailResponse(ResponseCode.MISSING_PARAM);
+            }
+
+            String edgeId = parseRequiredString(request.getEdgeId());
+            if (edgeId == null) {
+                return buildEdgeFailResponse(ResponseCode.INVALID_TYPE);
+            }
+
+            EdgeTest edgeTest = new EdgeTest();
+            edgeTest.setEdgeId(edgeId);
+            setSuccessAudit(edgeTest);
+
+            EdgeTest saved = edgeTestRepository.save(edgeTest);
+            return EdgeTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message(ResponseCode.SUCCESS.getMessage())
+                    .data(new EdgeTestData(saved.getEdgeId()))
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            return buildEdgeFailResponse(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public EdgeStatusTestResponse insertEdgeStatusTest(EdgeStatusTestRequest request) {
+        try {
+            if (request == null) {
+                return buildEdgeStatusFailResponse(ResponseCode.MISSING_BODY);
+            }
+
+            String edgeId = parseRequiredString(request.getEdgeId());
+            Double occupancyRate = parseDouble(request.getOccupancyRate());
+            if (request.getEdgeId() == null || request.getOccupancyRate() == null) {
+                return buildEdgeStatusFailResponse(ResponseCode.MISSING_PARAM);
+            }
+            if (edgeId == null || occupancyRate == null) {
+                return buildEdgeStatusFailResponse(ResponseCode.INVALID_TYPE);
+            }
+            if (occupancyRate < 0 || occupancyRate > 1) {
+                return buildEdgeStatusFailResponse(ResponseCode.INVALID_VALUE);
+            }
+
+            EdgeTest edgeTest = edgeTestRepository.findById(edgeId).orElse(null);
+            if (edgeTest == null) {
+                return buildEdgeStatusFailResponse(ResponseCode.EDGE_NOT_FOUND);
+            }
+
+            EdgeStatusTest edgeStatusTest = new EdgeStatusTest();
+            edgeStatusTest.setEdgeId(edgeTest);
+            edgeStatusTest.setOccupancyRate(occupancyRate);
+            setSuccessAudit(edgeStatusTest);
+
+            EdgeStatusTest saved = edgeStatusTestRepository.save(edgeStatusTest);
+            return EdgeStatusTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message(ResponseCode.SUCCESS.getMessage())
+                    .data(new EdgeStatusTestData(saved.getId(), saved.getEdgeId().getEdgeId(), saved.getOccupancyRate()))
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            return buildEdgeStatusFailResponse(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public EdgeDensityTestResponse insertEdgeDensityTest(EdgeDensityTestRequest request) {
+        try {
+            if (request == null) {
+                return buildEdgeDensityFailResponse(ResponseCode.MISSING_BODY);
+            }
+
+            String edgeId = parseRequiredString(request.getEdgeId());
+            Integer currentCount = parseInteger(request.getCurrentCount());
+            String fillPercentage = parseRequiredString(request.getFillPercentage());
+            if (request.getEdgeId() == null || request.getCurrentCount() == null || request.getFillPercentage() == null) {
+                return buildEdgeDensityFailResponse(ResponseCode.MISSING_PARAM);
+            }
+            if (edgeId == null || currentCount == null || fillPercentage == null) {
+                return buildEdgeDensityFailResponse(ResponseCode.INVALID_TYPE);
+            }
+            if (currentCount < 0) {
+                return buildEdgeDensityFailResponse(ResponseCode.INVALID_VALUE);
+            }
+
+            EdgeTest edgeTest = edgeTestRepository.findById(edgeId).orElse(null);
+            if (edgeTest == null) {
+                return buildEdgeDensityFailResponse(ResponseCode.EDGE_NOT_FOUND);
+            }
+
+            EdgeDensityTest edgeDensityTest = new EdgeDensityTest();
+            edgeDensityTest.setEdgeId(edgeTest);
+            edgeDensityTest.setCurrentCount(currentCount);
+            edgeDensityTest.setFillPercentage(fillPercentage);
+            setSuccessAudit(edgeDensityTest);
+
+            EdgeDensityTest saved = edgeDensityTestRepository.save(edgeDensityTest);
+            return EdgeDensityTestResponse.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()))
+                    .status("success")
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .message(ResponseCode.SUCCESS.getMessage())
+                    .data(new EdgeDensityTestData(saved.getId(), saved.getEdgeId().getEdgeId(),
+                            saved.getCurrentCount(), saved.getFillPercentage()))
+                    .usedInTest(false)
+                    .build();
+        } catch (Exception e) {
+            return buildEdgeDensityFailResponse(ResponseCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -651,6 +833,27 @@ public class FlowTestService {
         model.setUsedInTest(false);
     }
 
+    private void setSuccessAudit(EdgeTest model) {
+        model.setStatus("success");
+        model.setCode(ResponseCode.SUCCESS.getCode());
+        model.setMessage(ResponseCode.SUCCESS.getMessage());
+        model.setUsedInTest(false);
+    }
+
+    private void setSuccessAudit(EdgeStatusTest model) {
+        model.setStatus("success");
+        model.setCode(ResponseCode.SUCCESS.getCode());
+        model.setMessage(ResponseCode.SUCCESS.getMessage());
+        model.setUsedInTest(false);
+    }
+
+    private void setSuccessAudit(EdgeDensityTest model) {
+        model.setStatus("success");
+        model.setCode(ResponseCode.SUCCESS.getCode());
+        model.setMessage(ResponseCode.SUCCESS.getMessage());
+        model.setUsedInTest(false);
+    }
+
     private RouteTestResponse buildRouteFailResponse(ResponseCode responseCode) {
         return RouteTestResponse.builder()
                 .timestamp(new Timestamp(System.currentTimeMillis()))
@@ -701,6 +904,36 @@ public class FlowTestService {
                 .build();
     }
 
+    private EdgeTestResponse buildEdgeFailResponse(ResponseCode responseCode) {
+        return EdgeTestResponse.builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(responseCode.getMessage())
+                .usedInTest(false)
+                .build();
+    }
+
+    private EdgeStatusTestResponse buildEdgeStatusFailResponse(ResponseCode responseCode) {
+        return EdgeStatusTestResponse.builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(responseCode.getMessage())
+                .usedInTest(false)
+                .build();
+    }
+
+    private EdgeDensityTestResponse buildEdgeDensityFailResponse(ResponseCode responseCode) {
+        return EdgeDensityTestResponse.builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(responseCode.getMessage())
+                .usedInTest(false)
+                .build();
+    }
+
     public String cleanRouteTestData(){
         routeTestRepository.deleteAllInBatch();
         return "Route Test Data Cleared";
@@ -720,5 +953,17 @@ public class FlowTestService {
     public String cleanBottleneckDataTestData(){
         bottlenecksDataTestRepository.deleteAllInBatch();
         return "Bottleneck Data Test Data Cleared";
+    }
+    public String cleanEdgeTestData(){
+        edgeTestRepository.deleteAllInBatch();
+        return "Edge Test Data Cleared";
+    }
+    public String cleanEdgeStatusTestData(){
+        edgeStatusTestRepository.deleteAllInBatch();
+        return "Edge Status Test Data Cleared";
+    }
+    public String cleanEdgeDensityTestData(){
+        edgeDensityTestRepository.deleteAllInBatch();
+        return "Edge Density Test Data Cleared";
     }
 }
