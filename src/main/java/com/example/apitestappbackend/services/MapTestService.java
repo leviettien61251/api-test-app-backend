@@ -1,10 +1,16 @@
 package com.example.apitestappbackend.services;
 
+import com.example.apitestappbackend.DTO.AreaTest.AreaTestData;
+import com.example.apitestappbackend.DTO.AreaTest.AreaTestResponse;
+import com.example.apitestappbackend.DTO.HeatmapTest.HeatmapTestData;
+import com.example.apitestappbackend.DTO.HeatmapTest.HeatmapTestResponse;
 import com.example.apitestappbackend.DTO.MapTest.MapMetaData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestData;
 import com.example.apitestappbackend.DTO.MapTest.MapTestRequest;
 import com.example.apitestappbackend.DTO.MapTest.MapTestResponse;
 import com.example.apitestappbackend.DTO.NodeTest.BeaconData;
+import com.example.apitestappbackend.DTO.PathTest.PathTestData;
+import com.example.apitestappbackend.DTO.PathTest.PathTestResponse;
 import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchRequest;
 import com.example.apitestappbackend.DTO.SavedSearch.SavedSearchResponse;
 import com.example.apitestappbackend.DTO.StepTest.StepEdgeData;
@@ -21,8 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -34,19 +44,28 @@ public class MapTestService {
     private final WardTestRepository wardTestRepository;
     private final SavedSearchRepository savedSearchRepository;
     private final UserTestRepository userTestRepository;
+    private final AreaTestRepository areaTestRepository;
+    private final HeatmapTestRepository heatmapTestRepository;
+    private final PathTestRepository pathTestRepository;
 
     public MapTestService(MapTestRepository mapTestRepository,
                           StepTestRepository stepTestRepository,
                           NodeTestRepository nodeTestRepository,
                           WardTestRepository wardTestRepository,
                           SavedSearchRepository savedSearchRepository,
-                          UserTestRepository userTestRepository) {
+                          UserTestRepository userTestRepository,
+                          AreaTestRepository areaTestRepository,
+                          HeatmapTestRepository heatmapTestRepository,
+                          PathTestRepository pathTestRepository) {
         this.mapTestRepository = mapTestRepository;
         this.stepTestRepository = stepTestRepository;
         this.nodeTestRepository = nodeTestRepository;
         this.wardTestRepository = wardTestRepository;
         this.savedSearchRepository = savedSearchRepository;
         this.userTestRepository = userTestRepository;
+        this.areaTestRepository = areaTestRepository;
+        this.heatmapTestRepository = heatmapTestRepository;
+        this.pathTestRepository = pathTestRepository;
     }
 
     public boolean isImageURLValid(String url) {
@@ -582,6 +601,437 @@ public class MapTestService {
                 .message(message)
                 .usedInTest(false)
                 .build();
+    }
+
+    private AreaTestResponse buildAreaFailResponse(ResponseCode responseCode, String message) {
+        return AreaTestResponse
+                .builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(message)
+                .usedInTest(false)
+                .build();
+    }
+
+    private HeatmapTestResponse buildHeatmapFailResponse(ResponseCode responseCode, String message) {
+        return HeatmapTestResponse
+                .builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(message)
+                .usedInTest(false)
+                .build();
+    }
+
+    private PathTestResponse buildPathFailResponse(ResponseCode responseCode, String message) {
+        return PathTestResponse
+                .builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()))
+                .status("fail")
+                .code(responseCode.getCode())
+                .message(message)
+                .usedInTest(false)
+                .build();
+    }
+
+    private boolean hasAnyKey(Map<String, Object> request, String... keys) {
+        for (String key : keys) {
+            if (request.containsKey(key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Object getFirstValue(Map<String, Object> request, String... keys) {
+        for (String key : keys) {
+            if (request.containsKey(key)) {
+                return request.get(key);
+            }
+        }
+
+        return null;
+    }
+
+    private Timestamp parseTimestamp(Object value) {
+        if (!(value instanceof String text)) {
+            return null;
+        }
+
+        text = text.trim();
+        if (text.isBlank()) {
+            return null;
+        }
+
+        try {
+            return Timestamp.valueOf(text);
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        try {
+            return Timestamp.valueOf(LocalDateTime.parse(text));
+        } catch (DateTimeParseException ignored) {
+        }
+
+        try {
+            return Timestamp.from(OffsetDateTime.parse(text).toInstant());
+        } catch (DateTimeParseException ignored) {
+            return null;
+        }
+    }
+
+    public AreaTestResponse postAreaTest(Map<String, Object> request) {
+        try {
+            if (request == null) {
+                return buildAreaFailResponse(ResponseCode.MISSING_BODY, ResponseCode.MISSING_BODY.getMessage());
+            }
+
+            if (!request.containsKey("areaId")) {
+                return buildAreaFailResponse(ResponseCode.MISSING_PARAM, "Thiếu areaId");
+            }
+
+            if (!request.containsKey("mapId")) {
+                return buildAreaFailResponse(ResponseCode.MISSING_PARAM, "Thiếu mapId");
+            }
+
+            Object areaIdValue = request.get("areaId");
+            Object mapIdValue = request.get("mapId");
+
+            if (areaIdValue == null) {
+                return buildAreaFailResponse(ResponseCode.MISSING_PARAM, "Thiếu areaId");
+            }
+
+            if (mapIdValue == null) {
+                return buildAreaFailResponse(ResponseCode.MISSING_PARAM, "Thiếu mapId");
+            }
+
+            if (!(areaIdValue instanceof String areaId)) {
+                return buildAreaFailResponse(ResponseCode.INVALID_TYPE, "areaId phải là kiểu chuỗi");
+            }
+
+            Integer mapId = parseInteger(mapIdValue);
+            if (mapId == null) {
+                return buildAreaFailResponse(ResponseCode.INVALID_TYPE, "mapId phải là kiểu số nguyên");
+            }
+
+            areaId = areaId.trim();
+            if (areaId.isBlank()) {
+                return buildAreaFailResponse(ResponseCode.MISSING_PARAM, "Thiếu areaId");
+            }
+
+            if (mapId <= 0) {
+                return buildAreaFailResponse(ResponseCode.INVALID_VALUE, "mapId phải lớn hơn 0");
+            }
+
+            if (areaTestRepository.existsById(areaId)) {
+                return buildAreaFailResponse(ResponseCode.INVALID_VALUE, "areaId đã tồn tại");
+            }
+
+            MapTest mapTest = mapTestRepository.findById(mapId).orElse(null);
+            if (mapTest == null) {
+                return buildAreaFailResponse(ResponseCode.FLOOR_NOT_FOUND, ResponseCode.FLOOR_NOT_FOUND.getMessage());
+            }
+
+            AreaTest areaTest = new AreaTest();
+            areaTest.setAreaId(areaId);
+            areaTest.setMapId(mapTest);
+            areaTest.setStatus("success");
+            areaTest.setCode(ResponseCode.SUCCESS.getCode());
+            areaTest.setMessage(ResponseCode.SUCCESS.getMessage());
+            areaTest.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+            areaTest.setUsedInTest(false);
+
+            AreaTest savedArea = areaTestRepository.save(areaTest);
+
+            return AreaTestResponse
+                    .builder()
+                    .timestamp(savedArea.getTimeStamp())
+                    .status(savedArea.getStatus())
+                    .code(savedArea.getCode())
+                    .message(savedArea.getMessage())
+                    .data(List.of(new AreaTestData(savedArea.getAreaId(), savedArea.getMapId().getId())))
+                    .usedInTest(savedArea.getUsedInTest())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when post area test: ", e);
+            return buildAreaFailResponse(ResponseCode.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR.getMessage());
+        }
+    }
+
+    public HeatmapTestResponse postHeatmapTest(Map<String, Object> request) {
+        try {
+            if (request == null) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_BODY, ResponseCode.MISSING_BODY.getMessage());
+            }
+
+            if (!hasAnyKey(request, "nodeId", "node_id")) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu nodeId");
+            }
+
+            if (!hasAnyKey(request, "densityScore", "density_score")) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu densityScore");
+            }
+
+            if (!hasAnyKey(request, "recordedAt", "recorded_at")) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu recordedAt");
+            }
+
+            Object nodeIdValue = getFirstValue(request, "nodeId", "node_id");
+            Object densityScoreValue = getFirstValue(request, "densityScore", "density_score");
+            Object recordedAtValue = getFirstValue(request, "recordedAt", "recorded_at");
+
+            if (nodeIdValue == null) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu nodeId");
+            }
+
+            if (densityScoreValue == null) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu densityScore");
+            }
+
+            if (recordedAtValue == null) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu recordedAt");
+            }
+
+            if (nodeIdValue instanceof String text && text.trim().isBlank()) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu nodeId");
+            }
+
+            if (densityScoreValue instanceof String text && text.trim().isBlank()) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu densityScore");
+            }
+
+            if (recordedAtValue instanceof String text && text.trim().isBlank()) {
+                return buildHeatmapFailResponse(ResponseCode.MISSING_PARAM, "Thiếu recordedAt");
+            }
+
+            Integer nodeId = parseInteger(nodeIdValue);
+            if (nodeId == null) {
+                return buildHeatmapFailResponse(ResponseCode.INVALID_TYPE, "nodeId phải là kiểu số nguyên");
+            }
+
+            Integer densityScore = parseInteger(densityScoreValue);
+            if (densityScore == null) {
+                return buildHeatmapFailResponse(ResponseCode.INVALID_TYPE, "densityScore phải là kiểu số nguyên");
+            }
+
+            if (!(recordedAtValue instanceof String)) {
+                return buildHeatmapFailResponse(ResponseCode.INVALID_TYPE, "recordedAt phải là kiểu chuỗi thời gian");
+            }
+
+            Timestamp recordedAt = parseTimestamp(recordedAtValue);
+            if (recordedAt == null) {
+                return buildHeatmapFailResponse(ResponseCode.INVALID_VALUE, "recordedAt không hợp lệ");
+            }
+
+            if (nodeId <= 0) {
+                return buildHeatmapFailResponse(ResponseCode.INVALID_VALUE, "nodeId phải lớn hơn 0");
+            }
+
+            if (densityScore < 0) {
+                return buildHeatmapFailResponse(ResponseCode.INVALID_VALUE, "densityScore phải lớn hơn hoặc bằng 0");
+            }
+
+            NodeTest nodeTest = nodeTestRepository.findById(nodeId).orElse(null);
+            if (nodeTest == null) {
+                return buildHeatmapFailResponse(ResponseCode.NODE_NOT_FOUND, ResponseCode.NODE_NOT_FOUND.getMessage());
+            }
+
+            HeatmapTest heatmapTest = new HeatmapTest();
+            heatmapTest.setNodeId(nodeTest);
+            heatmapTest.setDensityScore(densityScore);
+            heatmapTest.setRecordedAt(recordedAt);
+            heatmapTest.setStatus("success");
+            heatmapTest.setCode(ResponseCode.SUCCESS.getCode());
+            heatmapTest.setMessage(ResponseCode.SUCCESS.getMessage());
+            heatmapTest.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+            heatmapTest.setUsedInTest(false);
+
+            HeatmapTest savedHeatmap = heatmapTestRepository.save(heatmapTest);
+
+            return HeatmapTestResponse
+                    .builder()
+                    .timestamp(savedHeatmap.getTimeStamp())
+                    .status(savedHeatmap.getStatus())
+                    .code(savedHeatmap.getCode())
+                    .message(savedHeatmap.getMessage())
+                    .data(List.of(new HeatmapTestData(
+                            savedHeatmap.getId(),
+                            savedHeatmap.getNodeId().getId(),
+                            savedHeatmap.getDensityScore(),
+                            savedHeatmap.getRecordedAt()
+                    )))
+                    .usedInTest(savedHeatmap.getUsedInTest())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when post heatmap test: ", e);
+            return buildHeatmapFailResponse(ResponseCode.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR.getMessage());
+        }
+    }
+
+    public PathTestResponse postPathTest(Map<String, Object> request) {
+        try {
+            if (request == null) {
+                return buildPathFailResponse(ResponseCode.MISSING_BODY, ResponseCode.MISSING_BODY.getMessage());
+            }
+
+            if (!hasAnyKey(request, "userId", "user_id")) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu userId");
+            }
+
+            if (!hasAnyKey(request, "startNodeId", "start_node_id")) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu startNodeId");
+            }
+
+            if (!hasAnyKey(request, "endNodeId", "end_node_id")) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu endNodeId");
+            }
+
+            if (!hasAnyKey(request, "totalDistance", "total_distance")) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu totalDistance");
+            }
+
+            if (!hasAnyKey(request, "pathStatus", "path_status")) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu pathStatus");
+            }
+
+            Object userIdValue = getFirstValue(request, "userId", "user_id");
+            Object startNodeIdValue = getFirstValue(request, "startNodeId", "start_node_id");
+            Object endNodeIdValue = getFirstValue(request, "endNodeId", "end_node_id");
+            Object totalDistanceValue = getFirstValue(request, "totalDistance", "total_distance");
+            Object pathStatusValue = getFirstValue(request, "pathStatus", "path_status");
+
+            if (userIdValue == null) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu userId");
+            }
+
+            if (startNodeIdValue == null) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu startNodeId");
+            }
+
+            if (endNodeIdValue == null) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu endNodeId");
+            }
+
+            if (totalDistanceValue == null) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu totalDistance");
+            }
+
+            if (pathStatusValue == null) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu pathStatus");
+            }
+
+            if (!(userIdValue instanceof String userId)) {
+                return buildPathFailResponse(ResponseCode.INVALID_TYPE, "userId phải là kiểu chuỗi");
+            }
+
+            if (userId.trim().isBlank()) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu userId");
+            }
+
+            if (startNodeIdValue instanceof String text && text.trim().isBlank()) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu startNodeId");
+            }
+
+            if (endNodeIdValue instanceof String text && text.trim().isBlank()) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu endNodeId");
+            }
+
+            if (totalDistanceValue instanceof String text && text.trim().isBlank()) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu totalDistance");
+            }
+
+            if (pathStatusValue instanceof String text && text.trim().isBlank()) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu pathStatus");
+            }
+
+            Integer startNodeId = parseInteger(startNodeIdValue);
+            if (startNodeId == null) {
+                return buildPathFailResponse(ResponseCode.INVALID_TYPE, "startNodeId phải là kiểu số nguyên");
+            }
+
+            Integer endNodeId = parseInteger(endNodeIdValue);
+            if (endNodeId == null) {
+                return buildPathFailResponse(ResponseCode.INVALID_TYPE, "endNodeId phải là kiểu số nguyên");
+            }
+
+            Double totalDistance = parseNumber(totalDistanceValue);
+            if (totalDistance == null) {
+                return buildPathFailResponse(ResponseCode.INVALID_TYPE, "totalDistance phải là kiểu số");
+            }
+
+            Double pathStatus = parseNumber(pathStatusValue);
+            if (pathStatus == null) {
+                return buildPathFailResponse(ResponseCode.INVALID_TYPE, "pathStatus phải là kiểu số");
+            }
+
+            if (startNodeId <= 0) {
+                return buildPathFailResponse(ResponseCode.INVALID_VALUE, "startNodeId phải lớn hơn 0");
+            }
+
+            if (endNodeId <= 0) {
+                return buildPathFailResponse(ResponseCode.INVALID_VALUE, "endNodeId phải lớn hơn 0");
+            }
+
+            if (isInvalidScaleValue(totalDistance)) {
+                return buildPathFailResponse(ResponseCode.INVALID_VALUE, "totalDistance phải là số lớn hơn 0");
+            }
+
+            if (pathStatus.isNaN() || pathStatus.isInfinite() || pathStatus < 0) {
+                return buildPathFailResponse(ResponseCode.INVALID_VALUE, "pathStatus phải lớn hơn hoặc bằng 0");
+            }
+
+            UserTest userTest = userTestRepository.findById(userId.trim()).orElse(null);
+            if (userTest == null) {
+                return buildPathFailResponse(ResponseCode.USER_NOT_FOUND, ResponseCode.USER_NOT_FOUND.getMessage());
+            }
+
+            NodeTest startNode = nodeTestRepository.findById(startNodeId).orElse(null);
+            if (startNode == null) {
+                return buildPathFailResponse(ResponseCode.NODE_NOT_FOUND, "Start node not found");
+            }
+
+            NodeTest endNode = nodeTestRepository.findById(endNodeId).orElse(null);
+            if (endNode == null) {
+                return buildPathFailResponse(ResponseCode.NODE_NOT_FOUND, "End node not found");
+            }
+
+            PathTest pathTest = new PathTest();
+            pathTest.setUserId(userTest);
+            pathTest.setStartNodeId(startNode);
+            pathTest.setEndNodeId(endNode);
+            pathTest.setTotalDistance(totalDistance);
+            pathTest.setPathStatus(pathStatus);
+            pathTest.setStatus("success");
+            pathTest.setCode(ResponseCode.SUCCESS.getCode());
+            pathTest.setMessage(ResponseCode.SUCCESS.getMessage());
+            pathTest.setTimeStamp(new Timestamp(System.currentTimeMillis()));
+            pathTest.setUsedInTest(false);
+
+            PathTest savedPath = pathTestRepository.save(pathTest);
+
+            return PathTestResponse
+                    .builder()
+                    .timestamp(savedPath.getTimeStamp())
+                    .status(savedPath.getStatus())
+                    .code(savedPath.getCode())
+                    .message(savedPath.getMessage())
+                    .data(List.of(new PathTestData(
+                            savedPath.getId(),
+                            savedPath.getUserId().getId(),
+                            savedPath.getStartNodeId().getId(),
+                            savedPath.getEndNodeId().getId(),
+                            savedPath.getTotalDistance(),
+                            savedPath.getPathStatus()
+                    )))
+                    .usedInTest(savedPath.getUsedInTest())
+                    .build();
+        } catch (Exception e) {
+            log.error("Error when post path test: ", e);
+            return buildPathFailResponse(ResponseCode.INTERNAL_SERVER_ERROR, ResponseCode.INTERNAL_SERVER_ERROR.getMessage());
+        }
     }
 
     public StepTestResponse insertStep(StepTestRequest request) {
