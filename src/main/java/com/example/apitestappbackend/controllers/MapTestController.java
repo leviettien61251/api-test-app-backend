@@ -215,6 +215,21 @@ public class MapTestController {
         return ResponseEntity.ok(mapTestService.cleanWardData());
     }
 
+    @DeleteMapping("/clean/map/area")
+    public HttpEntity<String> cleanAreaData() {
+        return ResponseEntity.ok(mapTestService.cleanAreaData());
+    }
+
+    @DeleteMapping("/clean/map/heatmap")
+    public HttpEntity<String> cleanHeatmapData() {
+        return ResponseEntity.ok(mapTestService.cleanHeatmapData());
+    }
+
+    @DeleteMapping("/clean/map/path")
+    public HttpEntity<String> cleanPathData() {
+        return ResponseEntity.ok(mapTestService.cleanPathData());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Response> handleInvalidBody() {
         Response response = Response.builder()
