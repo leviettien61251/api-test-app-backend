@@ -210,6 +210,21 @@ public class MapTestService {
         return "Dọn dẹp dữ liệu Ward thành công";
     }
 
+    public String cleanAreaData(){
+        areaTestRepository.deleteAllInBatch();
+        return "Dọn dẹp dữ liệu Area thành công";
+    }
+
+    public String cleanHeatmapData(){
+        heatmapTestRepository.deleteAllInBatch();
+        return "Dọn dẹp dữ liệu Heatmap thành công";
+    }
+
+    public String cleanPathData(){
+        pathTestRepository.deleteAllInBatch();
+        return "Dọn dẹp dữ liệu Path thành công";
+    }
+
     public SavedSearchResponse postSavedSearch(SavedSearchRequest request) {
         try {
             if (request == null || request.getKeyword() == null || request.getUserId() == null) {
