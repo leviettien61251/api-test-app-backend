@@ -892,8 +892,8 @@ public class MapTestService {
                 return buildPathFailResponse(ResponseCode.MISSING_BODY, ResponseCode.MISSING_BODY.getMessage());
             }
 
-            if (!hasAnyKey(request, "userId", "user_id")) {
-                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu userId");
+            if (!hasAnyKey(request, "phoneNumber", "phone_number")) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu phoneNumber");
             }
 
             if (!hasAnyKey(request, "startNodeId", "start_node_id")) {
@@ -912,14 +912,14 @@ public class MapTestService {
                 return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu pathStatus");
             }
 
-            Object userIdValue = getFirstValue(request, "userId", "user_id");
+            Object phoneNumberValue = getFirstValue(request, "phoneNumber", "phone_number");
             Object startNodeIdValue = getFirstValue(request, "startNodeId", "start_node_id");
             Object endNodeIdValue = getFirstValue(request, "endNodeId", "end_node_id");
             Object totalDistanceValue = getFirstValue(request, "totalDistance", "total_distance");
             Object pathStatusValue = getFirstValue(request, "pathStatus", "path_status");
 
-            if (userIdValue == null) {
-                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu userId");
+            if (phoneNumberValue == null) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu phoneNumber");
             }
 
             if (startNodeIdValue == null) {
@@ -938,12 +938,13 @@ public class MapTestService {
                 return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu pathStatus");
             }
 
-            if (!(userIdValue instanceof String userId)) {
-                return buildPathFailResponse(ResponseCode.INVALID_TYPE, "userId phải là kiểu chuỗi");
+            if (!(phoneNumberValue instanceof String phoneNumber)) {
+                return buildPathFailResponse(ResponseCode.INVALID_TYPE, "phoneNumber phải là kiểu chuỗi");
             }
 
-            if (userId.trim().isBlank()) {
-                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu userId");
+            phoneNumber = phoneNumber.trim();
+            if (phoneNumber.isBlank()) {
+                return buildPathFailResponse(ResponseCode.MISSING_PARAM, "Thiếu phoneNumber");
             }
 
             if (startNodeIdValue instanceof String text && text.trim().isBlank()) {
@@ -998,7 +999,7 @@ public class MapTestService {
                 return buildPathFailResponse(ResponseCode.INVALID_VALUE, "pathStatus phải lớn hơn hoặc bằng 0");
             }
 
-            UserTest userTest = userTestRepository.findById(userId.trim()).orElse(null);
+            UserTest userTest = userTestRepository.findByPhoneNumber(phoneNumber).orElse(null);
             if (userTest == null) {
                 return buildPathFailResponse(ResponseCode.USER_NOT_FOUND, ResponseCode.USER_NOT_FOUND.getMessage());
             }
