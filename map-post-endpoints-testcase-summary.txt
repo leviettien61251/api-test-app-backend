@@ -1,0 +1,350 @@
+SUMMARY API TESTCASE - MAP POST METHODS
+
+Base path:
+/api/v1
+
+HTTP status chung:
+- Success: 201 CREATED
+- Fail validation/business: 400 BAD_REQUEST
+- Invalid JSON parse: 400 BAD_REQUEST
+
+Response success chung:
+{
+  "status": "success",
+  "code": "1000",
+  "message": "Request processed successfully",
+  "timestamp": "...",
+  "usedInTest": false,
+  "data": [...]
+}
+
+Response fail chung:
+{
+  "status": "fail",
+  "code": "...",
+  "message": "...",
+  "timestamp": "...",
+  "usedInTest": false
+}
+
+Invalid JSON parse:
+- Controller bắt HttpMessageNotReadableException.
+- Trả code: 2005 INVALID_BODY
+- Message: Request body invalid
+
+============================================================
+1. postAreaTest
+============================================================
+
+Endpoint:
+POST /api/v1/map/area
+
+Body hợp lệ:
+{
+  "areaId": "AREA_001",
+  "mapId": 1
+}
+
+Field rules:
+- areaId:
+  - Required
+  - Non-null
+  - Non-blank sau trim
+  - Type: String
+- mapId:
+  - Required
+  - Non-null
+  - Type: integer JSON number
+  - Value > 0
+  - Phải tồn tại trong MapTest
+- areaId không được trùng trong AreaTestRepository.
+
+Success response data:
+[
+  {
+    "areaId": "AREA_001",
+    "mapId": 1
+  }
+]
+
+Response codes:
+- 1000 SUCCESS:
+  Insert thành công.
+- 2006 MISSING_BODY:
+  Body null/missing.
+- 2001 MISSING_PARAM:
+  Thiếu areaId.
+  Thiếu mapId.
+  areaId null.
+  mapId null.
+  areaId rỗng hoặc chỉ có whitespace.
+- 2002 INVALID_TYPE:
+  areaId không phải String.
+  mapId không phải integer JSON number.
+- 2003 INVALID_VALUE:
+  mapId <= 0.
+  areaId đã tồn tại.
+- 4001 FLOOR_NOT_FOUND:
+  Không tìm thấy mapId trong MapTest.
+- 5000 INTERNAL_SERVER_ERROR:
+  Exception ngoài dự kiến.
+- 2005 INVALID_BODY:
+  JSON invalid/parse lỗi.
+
+Gợi ý testcase:
+- Body null.
+- Body {}.
+- Thiếu areaId.
+- Thiếu mapId.
+- areaId null.
+- mapId null.
+- areaId "".
+- areaId "   ".
+- areaId number.
+- mapId string.
+- mapId decimal.
+- mapId <= 0.
+- mapId không tồn tại.
+- areaId trùng.
+- Body valid.
+
+============================================================
+2. postHeatmapTest
+============================================================
+
+Endpoint:
+POST /api/v1/map/heatmap
+
+Body hợp lệ camelCase:
+{
+  "nodeId": 1,
+  "densityScore": 80,
+  "recordedAt": "2026-06-03 05:30:00"
+}
+
+Body hợp lệ snake_case:
+{
+  "node_id": 1,
+  "density_score": 80,
+  "recorded_at": "2026-06-03T05:30:00+07:00"
+}
+
+Field rules:
+- nodeId hoặc node_id:
+  - Required
+  - Non-null
+  - Nếu là String rỗng/blank thì MISSING_PARAM
+  - Type: integer JSON number
+  - Value > 0
+  - Phải tồn tại trong NodeTest
+- densityScore hoặc density_score:
+  - Required
+  - Non-null
+  - Nếu là String rỗng/blank thì MISSING_PARAM
+  - Type: integer JSON number
+  - Value >= 0
+- recordedAt hoặc recorded_at:
+  - Required
+  - Non-null
+  - Non-blank
+  - Type: String
+  - Phải parse được thành Timestamp
+
+recordedAt accepted formats:
+- SQL timestamp: 2026-06-03 05:30:00
+- ISO local datetime: 2026-06-03T05:30:00
+- ISO offset datetime: 2026-06-03T05:30:00+07:00
+
+Success response data:
+[
+  {
+    "id": 1,
+    "nodeId": 1,
+    "densityScore": 80,
+    "recordedAt": "..."
+  }
+]
+
+Response codes:
+- 1000 SUCCESS:
+  Insert thành công.
+- 2006 MISSING_BODY:
+  Body null/missing.
+- 2001 MISSING_PARAM:
+  Thiếu nodeId/node_id.
+  Thiếu densityScore/density_score.
+  Thiếu recordedAt/recorded_at.
+  nodeId null hoặc blank string.
+  densityScore null hoặc blank string.
+  recordedAt null hoặc blank string.
+- 2002 INVALID_TYPE:
+  nodeId không phải integer JSON number.
+  densityScore không phải integer JSON number.
+  recordedAt không phải String.
+- 2003 INVALID_VALUE:
+  recordedAt parse lỗi.
+  nodeId <= 0.
+  densityScore < 0.
+- 4002 NODE_NOT_FOUND:
+  Không tìm thấy nodeId trong NodeTest.
+- 5000 INTERNAL_SERVER_ERROR:
+  Exception ngoài dự kiến.
+- 2005 INVALID_BODY:
+  JSON invalid/parse lỗi.
+
+Gợi ý testcase:
+- Body null.
+- Body {}.
+- Thiếu từng field.
+- Field null.
+- Field "" hoặc "   ".
+- nodeId string.
+- nodeId decimal.
+- nodeId <= 0.
+- nodeId không tồn tại.
+- densityScore string.
+- densityScore decimal.
+- densityScore < 0.
+- recordedAt number.
+- recordedAt format sai.
+- recordedAt SQL timestamp valid.
+- recordedAt ISO local valid.
+- recordedAt ISO offset valid.
+- Body valid camelCase.
+- Body valid snake_case.
+
+============================================================
+3. postPathTest
+============================================================
+
+Endpoint:
+POST /api/v1/map/path
+
+Body hợp lệ camelCase:
+{
+  "userId": "user-uuid",
+  "startNodeId": 1,
+  "endNodeId": 2,
+  "totalDistance": 120.5,
+  "pathStatus": 1
+}
+
+Body hợp lệ snake_case:
+{
+  "user_id": "user-uuid",
+  "start_node_id": 1,
+  "end_node_id": 2,
+  "total_distance": 120.5,
+  "path_status": 1
+}
+
+Field rules:
+- userId hoặc user_id:
+  - Required
+  - Non-null
+  - Non-blank sau trim
+  - Type: String
+  - Phải tồn tại trong UserTest
+- startNodeId hoặc start_node_id:
+  - Required
+  - Non-null
+  - Nếu là String rỗng/blank thì MISSING_PARAM
+  - Type: integer JSON number
+  - Value > 0
+  - Phải tồn tại trong NodeTest
+- endNodeId hoặc end_node_id:
+  - Required
+  - Non-null
+  - Nếu là String rỗng/blank thì MISSING_PARAM
+  - Type: integer JSON number
+  - Value > 0
+  - Phải tồn tại trong NodeTest
+- totalDistance hoặc total_distance:
+  - Required
+  - Non-null
+  - Nếu là String rỗng/blank thì MISSING_PARAM
+  - Type: JSON number
+  - Value > 0
+- pathStatus hoặc path_status:
+  - Required
+  - Non-null
+  - Nếu là String rỗng/blank thì MISSING_PARAM
+  - Type: JSON number
+  - Value >= 0
+
+Success response data:
+[
+  {
+    "id": 1,
+    "userId": "user-uuid",
+    "startNodeId": 1,
+    "endNodeId": 2,
+    "totalDistance": 120.5,
+    "pathStatus": 1.0
+  }
+]
+
+Response codes:
+- 1000 SUCCESS:
+  Insert thành công.
+- 2006 MISSING_BODY:
+  Body null/missing.
+- 2001 MISSING_PARAM:
+  Thiếu userId/user_id.
+  Thiếu startNodeId/start_node_id.
+  Thiếu endNodeId/end_node_id.
+  Thiếu totalDistance/total_distance.
+  Thiếu pathStatus/path_status.
+  Field null.
+  userId rỗng/blank.
+  Numeric field là String rỗng/blank.
+- 2002 INVALID_TYPE:
+  userId không phải String.
+  startNodeId không phải integer JSON number.
+  endNodeId không phải integer JSON number.
+  totalDistance không phải JSON number.
+  pathStatus không phải JSON number.
+- 2003 INVALID_VALUE:
+  startNodeId <= 0.
+  endNodeId <= 0.
+  totalDistance <= 0.
+  totalDistance NaN/Infinity.
+  pathStatus < 0.
+  pathStatus NaN/Infinity.
+- 3007 USER_NOT_FOUND:
+  Không tìm thấy userId trong UserTest.
+- 4002 NODE_NOT_FOUND:
+  Không tìm thấy startNodeId.
+  Không tìm thấy endNodeId.
+- 5000 INTERNAL_SERVER_ERROR:
+  Exception ngoài dự kiến.
+- 2005 INVALID_BODY:
+  JSON invalid/parse lỗi.
+
+Gợi ý testcase:
+- Body null.
+- Body {}.
+- Thiếu từng field.
+- Field null.
+- userId "" hoặc "   ".
+- userId number.
+- userId không tồn tại.
+- startNodeId/endNodeId string.
+- startNodeId/endNodeId decimal.
+- startNodeId/endNodeId <= 0.
+- startNodeId không tồn tại.
+- endNodeId không tồn tại.
+- totalDistance string.
+- totalDistance <= 0.
+- pathStatus string.
+- pathStatus < 0.
+- Body valid camelCase.
+- Body valid snake_case.
+
+============================================================
+Clean endpoints hỗ trợ testcase
+============================================================
+
+DELETE /api/v1/clean/map/area
+DELETE /api/v1/clean/map/heatmap
+DELETE /api/v1/clean/map/path
